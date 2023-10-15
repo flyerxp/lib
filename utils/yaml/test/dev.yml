@@ -1,0 +1,7 @@
+App:
+  Name: CH123_ADMIN
+ZK:
+  - Host:
+      Addr: 127.0.0.1:2181
+  - Host:
+      Addr: 127.0.0.1:2182

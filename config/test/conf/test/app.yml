@@ -1,0 +1,137 @@
+env: test
+app:
+  name: Webhook
+  type: web
+  logger:
+    level: debug
+    encoding: json
+    outputPaths:
+      - stdout
+      - logs/webhook
+    errorOutputPaths:
+      - stderr
+    initialFields:
+      app: Webhook
+    encoderConfig:
+      #messageKey: msg
+      levelKey: level
+      nameKey: name
+      TimeKey: time
+      #CallerKey: caller
+      #FunctionKey: func
+      StacktraceKey: stacktrace
+      LineEnding: "\n"
+  errlog:
+    level: warn
+    encoding: json
+    outputPaths:
+      - stdout
+      - logs/webhook
+    errorOutputPaths:
+      - stderr
+    initialFields:
+      app: Webhook
+    encoderConfig:
+      #messageKey: msg
+      levelKey: level
+      nameKey: name
+      TimeKey: time
+      CallerKey: caller
+      FunctionKey: func
+      StacktraceKey: stacktrace
+      LineEnding: "\n"
+nacos:
+-
+  name: nacosConf
+  url: http://nacosconf:8848/nacos
+  contextPath: /nacos
+  ns: 62c3bcf9-7948-4c26-a353-cebc0a7c9712
+  user: dev
+  pwd: 123456
+  redis:
+    name: base
+    address: [ "pubEs:6379" ]
+    user:
+    pwd:
+    master:
+redis:
+-
+  name: pubRedis
+  address: [ "nacosconfredis:6379" ]
+  user:
+  pwd:
+  master:
+redisNacos:
+  name: nacosConf
+  did: redis
+  group: redis
+  ns: 62c3bcf9-7948-4c26-a353-cebc0a7c9712
+mysql:
+-
+  name: pubMysql
+  address: pubmysql
+  port: 3306
+  user: test
+  pwd: 123456
+  ssl: disable
+  db: nacos
+  sql_log: yes
+  read_timeout: 100
+  conn_timeout: 100
+  write_timeout: 100
+  char_set: utf8mb4
+  max_idle_conns: 10
+  max_open_conns: 500
+mysqlNacos:
+  name: nacosConf
+  did: mysql
+  group: mysql
+  ns: 62c3bcf9-7948-4c26-a353-cebc0a7c9712
+pulsar:
+-
+  name: pubPulsar
+  address: [ "pubpulsar:6650" ]
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtcXR0In0.C_Uy7A-eDL43sJPyDqV1LXOXKTZI2djECeO93o6JQBE
+pulsarNacos:
+  name: nacosConf
+  did: pulsar
+  group: pulsar
+  ns: 62c3bcf9-7948-4c26-a353-cebc0a7c9712
+mqtt:
+  -
+    name: pubMqtt
+    scheme: ssl
+    address: [ "pubmqtt:1883" ]
+    user:
+    pwd: 
+#mqttNacos:
+#  name: nacosConf
+#  did: mqtt
+#  group: mqtt
+#  ns: 62c3bcf9-7948-4c26-a353-cebc0a7c9712
+topicNacos:
+-
+  name: nacosConf
+  did: topic
+  group: topic
+  ns: 62c3bcf9-7948-4c26-a353-cebc0a7c9712
+elastic:
+-
+  name: pubEs
+  host: [ "pubEs:9200" ]
+  user: elastic
+  pwd: SLmOE+pJcwsxbFrf-rzh
+  read_timeout: 600ms
+  conn_timeout: 80ms
+  default_max_window_result: 0
+  default_track_total_hits: 0
+  auto_detect: false
+  max_window_result:
+    test: 1000
+  track_total_hits:
+    test: 2000
+#elasticNacos:
+#  name: nacosConf
+#  did: elastic
+#  group: elastic
+#  ns: 62c3bcf9-7948-4c26-a353-cebc0a7c9712

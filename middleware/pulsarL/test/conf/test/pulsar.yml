@@ -1,0 +1,16 @@
+#topic 分布所属集群
+topic_distribution:
+  10: pubPulsar
+#1000 用户
+#2000 订单
+topic:
+-
+  code: 10101001
+  delay: 0
+-
+  code: 10101002
+  delay: 0
+-
+  code_str: test
+  delay: 0
+  cluster: pubPulsar
