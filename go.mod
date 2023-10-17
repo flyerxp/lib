@@ -6,7 +6,9 @@ require (
 	github.com/apache/pulsar-client-go v0.9.1-0.20230616094333-7f91b2bcd798
 	github.com/bytedance/go-tagexpr/v2 v2.9.2
 	github.com/cloudwego/hertz v0.6.2
+	github.com/eclipse/paho.mqtt.golang v1.4.3
 	github.com/go-sql-driver/mysql v1.7.1
+	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/uuid v1.3.0
 	github.com/hertz-contrib/logger/zap v1.0.1-0.20230428050608-fc430385c0ec
 	github.com/jmoiron/sqlx v1.3.5
@@ -32,11 +34,9 @@ require (
 	github.com/bits-and-blooms/bitset v1.8.0 // indirect
 	github.com/danieljoos/wincred v1.2.0 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
-	github.com/eclipse/paho.mqtt.golang v1.4.3 // indirect
 	github.com/frankban/quicktest v1.14.5 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
-	github.com/golang-jwt/jwt/v5 v5.0.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
@@ -57,11 +57,11 @@ require (
 	github.com/prometheus/procfs v0.11.0 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	golang.org/x/mod v0.11.0 // indirect
-	golang.org/x/net v0.11.0 // indirect
+	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/oauth2 v0.9.0 // indirect
 	golang.org/x/sync v0.2.0 // indirect
-	golang.org/x/sys v0.9.0 // indirect
-	golang.org/x/term v0.9.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/term v0.13.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 )
