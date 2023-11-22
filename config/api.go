@@ -128,7 +128,7 @@ redis:
   name: pubRedis
   address: [ "pubredis:6379" ]
   user:
-  pwd:
+  pwd: 123456
   master:
 redisNacos:
   name: nacosConf
@@ -196,8 +196,8 @@ nacos:
   redis:
     name: base
     address: [ "pubEs:6379" ]
-    user:
-    pwd:
+    user: 123456
+    pwd: 
     master:
 elastic:
 -

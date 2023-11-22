@@ -44,7 +44,10 @@ func newClient(ctx context.Context, o config2.MidNacos) *Client {
 			MasterName:   o.Redis.Master,
 			Username:     o.Redis.User,
 			Password:     o.Redis.Pwd,
-			PoolTimeout:  time.Second,
+			PoolTimeout:  time.Millisecond * time.Duration(500),
+			ReadTimeout:  time.Millisecond * time.Duration(500),
+			WriteTimeout: time.Millisecond * time.Duration(500),
+			DialTimeout:  time.Millisecond * time.Duration(500),
 			MaxIdleConns: 30,
 		})
 	}

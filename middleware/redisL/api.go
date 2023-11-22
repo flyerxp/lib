@@ -79,10 +79,10 @@ func GetEngine(ctx context.Context, name string) (*RedisC, error) {
 			MasterName:   o.Master,
 			Username:     o.User,
 			Password:     o.Pwd,
-			PoolTimeout:  time.Second,
-			ReadTimeout:  time.Second,
-			WriteTimeout: time.Second,
-			DialTimeout:  time.Second,
+			PoolTimeout:  time.Millisecond * time.Duration(500),
+			ReadTimeout:  time.Millisecond * time.Duration(500),
+			WriteTimeout: time.Millisecond * time.Duration(500),
+			DialTimeout:  time.Millisecond * time.Duration(500),
 			MaxIdleConns: 30,
 		}
 		if o.WriteTimeout > 0 {
