@@ -74,14 +74,31 @@ func GetEngine(ctx context.Context, name string) (*RedisC, error) {
 	}
 	o, okC := RedisEngine.RedisConf.Get(name)
 	if okC {
-		objRedis := redis.NewUniversalClient(&redis.UniversalOptions{
+		op := &redis.UniversalOptions{
 			Addrs:        o.Address,
 			MasterName:   o.Master,
 			Username:     o.User,
 			Password:     o.Pwd,
 			PoolTimeout:  time.Second,
+			ReadTimeout:  time.Second,
+			WriteTimeout: time.Second,
+			DialTimeout:  time.Second,
 			MaxIdleConns: 30,
-		})
+		}
+		if o.WriteTimeout > 0 {
+			op.WriteTimeout = time.Millisecond * time.Duration(o.WriteTimeout)
+		}
+		if o.ReadTimeout > 0 {
+			op.ReadTimeout = time.Millisecond * time.Duration(o.ReadTimeout)
+		}
+		if o.DialTimeout > 0 {
+			op.DialTimeout = time.Millisecond * time.Duration(o.DialTimeout)
+		}
+		if o.PoolTimeout > 0 {
+			op.PoolTimeout = time.Millisecond * time.Duration(o.PoolTimeout)
+		}
+		objRedis := redis.NewUniversalClient(op)
+
 		objRedis.AddHook(HookLog{})
 		objRedisC := new(RedisC)
 		go func() {
