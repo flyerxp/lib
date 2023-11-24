@@ -31,6 +31,7 @@ type noticeData struct {
 	Refer         string
 	RemoteAddr    string
 	LocalAddr     string
+	Agent         string
 	Expire        time.Time
 }
 
@@ -254,6 +255,15 @@ func SetAddr(ctx context.Context, remote string, local string) {
 	if n, ok := dataContainer.NoticeData.Get(logId); ok {
 		n.RemoteAddr = remote
 		n.LocalAddr = local
+	}
+}
+func SetUserAgent(ctx context.Context, agent string) {
+	logId := GetLogId(ctx)
+	if logId == "" {
+		return
+	}
+	if n, ok := dataContainer.NoticeData.Get(logId); ok {
+		n.Agent = agent
 	}
 }
 func addMiddleExecTime(m *MiddleExec, t int) {

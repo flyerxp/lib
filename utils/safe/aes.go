@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
+	"strings"
 )
 
 type AesL struct {
@@ -45,5 +46,5 @@ func (a *AesL) Decrypt(ciphertext string) (string, error) {
 	}
 	stream := cipher.NewCBCDecrypter(block, a.iv)
 	stream.CryptBlocks(decodedCiphertext, decodedCiphertext)
-	return string(decodedCiphertext), nil
+	return strings.TrimRight(string(decodedCiphertext), "\x00"), nil
 }

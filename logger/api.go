@@ -174,6 +174,7 @@ func WriteLine(ctx context.Context) {
 		zap.String("referer", nData.Refer),
 		zap.String("remoteIp", nData.RemoteAddr),
 		zap.String("serverIp", nData.LocalAddr),
+		zap.String("user-agent", nData.Agent),
 		zap.Object("middle", nData.NoticeMetrics.Middle),
 		zap.Object("execTime", nData.ExecMetrics),
 		zap.Int("execTotalTime", nData.NoticeMetrics.TotalExecTime),
