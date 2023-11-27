@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"github.com/russross/blackfriday"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -60,4 +61,11 @@ func GetCn(str string) (cnStr string) {
 		}
 	}
 	return
+}
+
+// 从float 32 转到float
+func Float32toFloat64(v float32) float64 {
+	str := strconv.FormatFloat(float64(v), 'f', -1, 32)
+	money64, _ := strconv.ParseFloat(str, 64)
+	return money64
 }
