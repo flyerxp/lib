@@ -86,6 +86,21 @@ func (e *ETimeStt) Stop(ctx context.Context) {
 	e.Step++
 	e.Start = time.Now()
 }
+func (e *ETimeStt) StopName(ctx context.Context, Name string) {
+	e.Exec = int(time.Since(e.Start).Milliseconds())
+	oriName := e.Name
+	e.Name = fmt.Sprintf("%s_%s", e.Name, Name)
+	logId := GetLogId(ctx)
+	if logId == "" {
+		return
+	}
+	if n, ok := dataContainer.NoticeData.Get(logId); ok {
+		n.ExecMetrics.ETime = append(n.ExecMetrics.ETime, *e)
+	}
+	e.Name = oriName
+	e.Step++
+	e.Start = time.Now()
+}
 func (e ETimeStt) GetExec() int {
 	if e.Exec < 0 {
 		e.Exec = int(time.Since(e.Start).Milliseconds())
@@ -94,13 +109,13 @@ func (e ETimeStt) GetExec() int {
 }
 func (e eTimeMetrics) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	for i := range e.ETime {
-		if e.ETime[i].Exec >= 0 {
-			if e.ETime[i].Step > 0 {
-				enc.AddInt(e.ETime[i].Name+"_"+strconv.Itoa(e.ETime[i].Step), e.ETime[i].Exec)
-			} else {
-				enc.AddInt(e.ETime[i].Name, e.ETime[i].Exec)
-			}
+		//if e.ETime[i].Exec >= 0 {
+		if e.ETime[i].Step > 0 {
+			enc.AddInt(e.ETime[i].Name+"_"+strconv.Itoa(e.ETime[i].Step), e.ETime[i].Exec)
+		} else {
+			enc.AddInt(e.ETime[i].Name, e.ETime[i].Exec)
 		}
+		//}
 	}
 	return nil
 }
