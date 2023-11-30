@@ -153,6 +153,12 @@ func newClient(ctx context.Context, o config2.MidMysqlConf) *MysqlClient {
 			if o.MaxOpenConns > 0 {
 				n.SetMaxOpenConns(o.MaxOpenConns)
 			}
+			if o.MaxLifetime > 0 {
+				n.SetConnMaxLifetime(time.Duration(o.MaxLifetime) * time.Second)
+			}
+			if o.MaxIdleTime > 0 {
+				n.SetConnMaxIdleTime(time.Duration(o.MaxIdleTime) * time.Second)
+			}
 			return n
 		},
 	}

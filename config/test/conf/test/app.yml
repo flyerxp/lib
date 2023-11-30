@@ -82,6 +82,10 @@ mysql:
   char_set: utf8mb4
   max_idle_conns: 10
   max_open_conns: 500
+  #秒为单位
+  max_lifetime: 600
+  #秒为单位
+  max_idle_time: 600
 mysqlNacos:
   name: nacosConf
   did: mysql

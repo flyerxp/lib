@@ -22,6 +22,8 @@ type MidMysqlConf struct {
 	SqlLog       string `yaml:"sql_log" json:"sql_log"` // yes|no
 	MaxOpenConns int    `yaml:"max_open_conns" json:"max_open_conns"`
 	MaxIdleConns int    `yaml:"max_idle_conns" json:"max_idle_conns"`
+	MaxLifetime  int    `yaml:"max_lifetime" json:"max_lifetime"`
+	MaxIdleTime  int    `yaml:"max_idle_time" json:"max_idle_time"`
 }
 type MidPulsarConf struct {
 	Name    string   `yaml:"name" json:"name"`
