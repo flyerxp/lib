@@ -51,10 +51,10 @@ func (h *Hooks) After(ctx context.Context, query string, args ...interface{}) (c
 	return ctx, nil
 }
 func (h *Hooks) OnError(ctx context.Context, err error, query string, args ...interface{}) error {
-	/*if err.Error() == "driver: bad connection" || err.Error() == "invalid connection" {
+	if err.Error() == "driver: bad connection" || err.Error() == "invalid connection" {
 		e, _ := GetEngine(ctx, h.DbName)
 		e.CloseDb()
-	}*/
+	}
 	key := h.SqlKey.GetString("query")
 	agKey := h.SqlKey.GetString("args")
 	var runTime = 1000
