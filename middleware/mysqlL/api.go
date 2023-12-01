@@ -162,6 +162,7 @@ func newClient(ctx context.Context, o config2.MidMysqlConf) *MysqlClient {
 			return n
 		},
 	}
+
 	return &MysqlClient{c, nil}
 }
 func (m *MysqlClient) GetDb() *sqlx.DB {
@@ -172,6 +173,10 @@ func (m *MysqlClient) GetDb() *sqlx.DB {
 }
 func (m *MysqlClient) PutDb(a *sqlx.DB) {
 	m.Poll.Put(a)
+}
+func (m *MysqlClient) CloseDb() {
+	m.Poll.Put(m.CurrDb)
+	m.CurrDb = nil
 }
 func (m *SqlContainer) Reset() {
 	if MysqlEngine != nil {
