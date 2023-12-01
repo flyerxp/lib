@@ -49,6 +49,9 @@ func newClient(ctx context.Context, o config2.MidNacos) *Client {
 			WriteTimeout: time.Millisecond * time.Duration(500),
 			DialTimeout:  time.Millisecond * time.Duration(500),
 			MaxIdleConns: 30,
+			MaxRetries:   3,
+			//ConnMaxLifetime: 30 * time.Second,
+			ConnMaxIdleTime: 30 * time.Second,
 		})
 	}
 	c := &Client{
