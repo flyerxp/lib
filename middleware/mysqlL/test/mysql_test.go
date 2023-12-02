@@ -89,9 +89,10 @@ func TestTx(T *testing.T) {
 	ctx := logger.GetContext(context.Background(), "test")
 	mysql, _ := mysqlL.GetEngine(ctx, "pubMysql")
 	db := mysql.GetDb()
-
-	tx, _ := db.Begin()
-	re, err := tx.ExecContext(ctx, "update news_info set title='aaaaaaaa' where id = 2")
-	fmt.Println(re, "=======", err)
-	tx.Rollback()
+	tx := mysqlL.GetNewTx(ctx, db)
+	defer tx.Defer()
+	tx.MustBegin(ctx)
+	//报错自动回滚
+	tx.Tx.MustExecContext(ctx, "update news_info set title='aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' where id = 5")
+	tx.Commit()
 }
