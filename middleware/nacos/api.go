@@ -137,13 +137,13 @@ func (n *Client) GetConfig(ctx context.Context, did string, gp string, ns string
 	key := n.GetKey("/nacos/v1/cs/configs" + "@@" + did + "@@" + gp + "@@" + ns)
 	rv, rErr := n.getDataFromCache(ctx, key)
 	if rErr == nil && rv.Err() != redis.Nil {
-		logger.AddNacosTime(ctx, int(time.Since(start).Milliseconds()))
+		logger.AddNacosTime(ctx, int(time.Since(start).Microseconds()))
 		return rv.Bytes()
 	}
 	token, err := n.GetToken(ctx)
 	//接口报错，返回空
 	if err != nil {
-		logger.AddNacosTime(ctx, int(time.Since(start).Milliseconds()))
+		logger.AddNacosTime(ctx, int(time.Since(start).Microseconds()))
 		logger.AddError(ctx, zap.Error(err))
 		return []byte{}, err
 	} else {
@@ -157,15 +157,15 @@ func (n *Client) GetConfig(ctx context.Context, did string, gp string, ns string
 			if rv.String() != sYaml {
 				redisClient.Set(ctx, key, sYaml, time.Second*86400*2)
 			}
-			logger.AddNacosTime(ctx, int(time.Since(start).Milliseconds()))
+			logger.AddNacosTime(ctx, int(time.Since(start).Microseconds()))
 			return bYaml, nil
 		} else {
 			if rErr != nil && rv.Val() != "" {
-				logger.AddNacosTime(ctx, int(time.Since(start).Milliseconds()))
+				logger.AddNacosTime(ctx, int(time.Since(start).Microseconds()))
 				return rv.Bytes()
 			}
 		}
-		logger.AddNacosTime(ctx, int(time.Since(start).Milliseconds()))
+		logger.AddNacosTime(ctx, int(time.Since(start).Microseconds()))
 		return []byte{}, bErr
 	}
 }

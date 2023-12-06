@@ -120,7 +120,7 @@ func (c *Consumer) Consumer(F func(context.Context, mqtt.Message, *MqttMessage) 
 					logger.WriteErr(ctx)
 				}
 				_ = F(ctx, cm, gProductChan)
-				logger.SetExecTime(ctx, int(time.Since(start).Milliseconds()))
+				logger.SetExecTime(ctx, int(time.Since(start).Microseconds()))
 				logger.WriteLine(ctx)
 				cm.Ack()
 				if c.Options.MaxConsumer > 0 && c.Counter >= int64(c.Options.MaxConsumer) {

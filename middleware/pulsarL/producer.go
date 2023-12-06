@@ -104,7 +104,7 @@ func Producer(ctx context.Context, o *OutMessage) error {
 	if e != nil {
 		logger.AddError(ctx, zap.String("pulsar", "pulsar producer error "+e.Error()), zap.Error(e))
 		logger.WriteErr(ctx)
-		logger.AddPulsarTime(ctx, int(time.Since(start).Milliseconds()))
+		logger.AddPulsarTime(ctx, int(time.Since(start).Microseconds()))
 		panic(errors.New("pulsar producer create timeout," + e.Error()))
 	}
 	atomic.AddInt32(&producerQue.Sending, 1)
@@ -116,7 +116,7 @@ func Producer(ctx context.Context, o *OutMessage) error {
 		atomic.AddInt32(&producerQue.Sending, -1)
 		producerQue.Wg.Done()
 	})
-	logger.AddPulsarTime(ctx, int(time.Since(start).Milliseconds()))
+	logger.AddPulsarTime(ctx, int(time.Since(start).Microseconds()))
 	return nil
 }
 func getPulsarMessage(o *OutMessage, objTopic *TopicS, ctx context.Context) *pulsar.ProducerMessage {

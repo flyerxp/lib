@@ -36,12 +36,12 @@ func (h *Hooks) After(ctx context.Context, query string, args ...interface{}) (c
 	key := h.SqlKey.GetString("query")
 	agKey := h.SqlKey.GetString("args")
 	begin, ok := ctx.Value(key).(time.Time)
-	var runTime = 1000
+	var runTime int
 	if ok {
-		timeout := int(time.Since(begin).Milliseconds())
+		timeout := int(time.Since(begin).Microseconds())
 		runTime = timeout
 		logger.AddMysqlTime(ctx, timeout)
-		if timeout > 2000 {
+		if timeout > 2000000 {
 			logger.AddWarn(ctx, zap.String(key, query), zap.Any(agKey, args))
 		}
 	}
@@ -57,9 +57,9 @@ func (h *Hooks) OnError(ctx context.Context, err error, query string, args ...in
 	}
 	key := h.SqlKey.GetString("query")
 	agKey := h.SqlKey.GetString("args")
-	var runTime = 1000
+	var runTime int
 	if begin, ok := ctx.Value(key).(time.Time); ok {
-		runTime = int(time.Since(begin).Milliseconds())
+		runTime = int(time.Since(begin).Microseconds())
 		logger.AddMysqlTime(ctx, runTime)
 	}
 	logger.AddError(ctx, zap.String(key, query), zap.Any(agKey, args), zap.Error(err))

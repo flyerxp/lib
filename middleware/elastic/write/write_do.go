@@ -96,7 +96,7 @@ func (sd *writeDo) Do(s *WriteService, body string) ([]byte, error) {
 	s.Dsl = body
 	start := time.Now()
 	r, e := s.httpClient.SendRequest(s.context, fasthttp.MethodPost, sd.getUrl(s), body, s.timeOut, 0, true)
-	tTime := time.Since(start).Milliseconds()
+	tTime := time.Since(start).Microseconds()
 	logger.AddEsTime(s.context, int(tTime))
 	return r, e
 }

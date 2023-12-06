@@ -34,7 +34,7 @@ func TestConf(T *testing.T) {
 		}
 	}
 	logger.WriteLine(ctx)
-	fmt.Printf("mysql 数据库读取 10000次耗时 %d 毫秒\n", time.Since(start).Milliseconds())
+	fmt.Printf("mysql 数据库读取 10000次耗时 %d 毫秒\n", time.Since(start).Microseconds()/1000)
 }
 func TestSelect(T *testing.T) {
 	tmpData := make([]DataM, 0)
@@ -49,7 +49,7 @@ func TestSelect(T *testing.T) {
 		fmt.Println(tmpData, err)
 
 	}
-	fmt.Printf("mysql 数据库读取 10000次耗时 %d 毫秒\n", time.Since(start).Milliseconds())
+	fmt.Printf("mysql 数据库读取 10000次耗时 %d 毫秒\n", time.Since(start).Microseconds()/1000)
 }
 func TestGo(T *testing.T) {
 	start := time.Now()
@@ -75,7 +75,7 @@ func TestGo(T *testing.T) {
 		}()
 	}
 	wg.Wait()
-	fmt.Printf("mysql 数据库读取耗时 %d 毫秒\n", time.Since(start).Milliseconds())
+	fmt.Printf("mysql 数据库读取耗时 %d 毫秒\n", time.Since(start).Microseconds()/1000)
 }
 func TestSql(T *testing.T) {
 	T.Log(mysqlL.GetUpdateSql("abcd", []string{

@@ -38,11 +38,11 @@ type noticeData struct {
 // 中间件耗时
 type MiddleExec struct {
 	Name          string
-	TotalExecTime int
+	TotalExecTime float32
 	Count         int
-	Max           int
-	Avg           int
-	ConnectTime   int
+	Max           float32
+	Avg           float32
+	ConnectTime   float32
 	ConnectCount  int
 }
 
@@ -128,12 +128,12 @@ type noticeMetrics struct {
 }
 
 func (a MiddleExec) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	enc.AddInt("total", a.TotalExecTime)
+	enc.AddFloat32("total", a.TotalExecTime/1000)
 	enc.AddInt("count", a.Count)
-	enc.AddInt("avg", a.Avg)
-	enc.AddInt("max", a.Max)
-	if a.Name != "nacos" {
-		enc.AddInt("ConnTime", a.ConnectTime)
+	enc.AddFloat32("avg", a.Avg/1000)
+	enc.AddFloat32("max", a.Max/1000)
+	if a.Name == "redis" || a.Name == "mysql" {
+		enc.AddFloat32("ConnTime", a.ConnectTime/1000)
 		enc.AddInt("ConnCount", a.ConnectCount)
 	}
 	return nil
@@ -283,16 +283,17 @@ func SetUserAgent(ctx context.Context, agent string) {
 }
 func addMiddleExecTime(m *MiddleExec, t int) {
 	m.Count += 1
-	m.TotalExecTime += t
-	m.Avg = (int)(m.TotalExecTime / m.Count)
-	if t > m.Max {
-		m.Max = t
+	ft := float32(t)
+	m.TotalExecTime += ft
+	m.Avg = m.TotalExecTime / float32(m.Count)
+	if ft > m.Max {
+		m.Max = ft
 	}
 }
 
 func addMiddleConnTime(m *MiddleExec, t int) {
 	m.ConnectCount += 1
-	m.ConnectTime += t
+	m.ConnectTime += float32(t)
 }
 func AddMongoConnTime(ctx context.Context, t int) {
 	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
@@ -304,31 +305,38 @@ func AddRedisConnTime(ctx context.Context, t int) {
 		addMiddleConnTime(&n.NoticeMetrics.Middle.Redis, t)
 	}
 }
-func AddPulsarConnTime(ctx context.Context, t int) {
-	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-		addMiddleConnTime(&n.NoticeMetrics.Middle.Pulsar, t)
+
+/*
+	func AddPulsarConnTime(ctx context.Context, t int) {
+		if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
+			addMiddleConnTime(&n.NoticeMetrics.Middle.Pulsar, t)
+		}
 	}
-}
-func AddKafkaConnTime(ctx context.Context, t int) {
-	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-		addMiddleConnTime(&n.NoticeMetrics.Middle.Kafka, t)
+
+	func AddKafkaConnTime(ctx context.Context, t int) {
+		if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
+			addMiddleConnTime(&n.NoticeMetrics.Middle.Kafka, t)
+		}
 	}
-}
-func AddEsConnTime(ctx context.Context, t int) {
-	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-		addMiddleConnTime(&n.NoticeMetrics.Middle.Elastic, t)
+
+	func AddEsConnTime(ctx context.Context, t int) {
+		if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
+			addMiddleConnTime(&n.NoticeMetrics.Middle.Elastic, t)
+		}
 	}
-}
-func AddRpcConnTime(ctx context.Context, t int) {
-	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-		addMiddleConnTime(&n.NoticeMetrics.Middle.Rpc, t)
+
+	func AddRpcConnTime(ctx context.Context, t int) {
+		if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
+			addMiddleConnTime(&n.NoticeMetrics.Middle.Rpc, t)
+		}
 	}
-}
-func AddRocketConnTime(ctx context.Context, t int) {
-	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-		addMiddleConnTime(&n.NoticeMetrics.Middle.RocketMq, t)
+
+	func AddRocketConnTime(ctx context.Context, t int) {
+		if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
+			addMiddleConnTime(&n.NoticeMetrics.Middle.RocketMq, t)
+		}
 	}
-}
+*/
 func AddMqttConnTime(ctx context.Context, t int) {
 	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
 		addMiddleConnTime(&n.NoticeMetrics.Middle.Mqtt, t)

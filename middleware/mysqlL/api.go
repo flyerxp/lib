@@ -142,7 +142,8 @@ func newClient(ctx context.Context, o config2.MidMysqlConf) *MysqlClient {
 					logger.AddError(ctx, zap.Error(errors.New("dsn link fail:"+o.Address)))
 				}
 			}()
-			logger.AddMysqlConnTime(ctx, int(time.Since(start).Milliseconds()))
+
+			logger.AddMysqlConnTime(ctx, int(time.Since(start).Microseconds()))
 			if e != nil {
 				logger.AddError(ctx, zap.String("dsn link fail ", o.Name+"|"+o.Address), zap.Error(e))
 				panic(e.Error())

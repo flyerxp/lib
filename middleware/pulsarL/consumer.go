@@ -148,7 +148,7 @@ func (c *Consumer) Consumer(F func(context.Context, *pulsar.ConsumerMessage, *Pu
 					gProductChan.Properties["RECONSUMETIMES"] = prop
 				}
 				_ = F(ctx, &cm, gProductChan)
-				logger.SetExecTime(ctx, int(time.Since(start).Milliseconds()))
+				logger.SetExecTime(ctx, int(time.Since(start).Microseconds()))
 				logger.WriteLine(ctx)
 				err = cm.Consumer.Ack(cm.Message)
 				if err != nil {

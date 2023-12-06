@@ -322,7 +322,7 @@ func (sd *searchDo) DeleteScroll(s *SearchSevice, scrollId string) error {
 func (sd *searchDo) BatchByScroll(s *SearchSevice, scrollId string) (error, *ResultScroll) {
 	start := time.Now()
 	r, e := s.httpClient.SendRequest(s.context, fasthttp.MethodGet, sd.getScrollUrl(s, scrollId), "", s.timeOut, 0, true)
-	tTime := time.Since(start).Milliseconds()
+	tTime := time.Since(start).Microseconds()
 	logger.AddEsTime(s.context, int(tTime))
 	resp := new(ResultScroll)
 	resp.searchService = s
@@ -350,7 +350,7 @@ func (sd *searchDo) Do(s *SearchSevice) ([]byte, error) {
 	s.Dsl = body
 	start := time.Now()
 	r, e := s.httpClient.SendRequest(s.context, fasthttp.MethodPost, sd.getUrl(s), body, s.timeOut, 0, true)
-	tTime := time.Since(start).Milliseconds()
+	tTime := time.Since(start).Microseconds()
 	logger.AddEsTime(s.context, int(tTime))
 	return r, e
 }
@@ -358,7 +358,7 @@ func (sd *searchDo) RequestApi(s *SearchSevice, method string, url string, body 
 	s.Dsl = body
 	start := time.Now()
 	r, e := s.httpClient.SendRequest(s.context, method, url, body, s.timeOut, 0, true)
-	tTime := time.Since(start).Milliseconds()
+	tTime := time.Since(start).Microseconds()
 	logger.AddEsTime(s.context, int(tTime))
 	return r, e
 }

@@ -81,7 +81,7 @@ func (m *MqttClient) Producer(ctx context.Context, o *OutMessage) error {
 		logger.AddError(ctx, zap.String("matt", "ants errors"), zap.Error(err))
 		return err
 	}
-	logger.AddMqttTime(ctx, int(time.Since(start).Milliseconds()))
+	logger.AddMqttTime(ctx, int(time.Since(start).Microseconds()))
 	return nil
 }
 
@@ -203,7 +203,7 @@ func newClient(ctx context.Context, o config2.MidMqttConf, opsF ...func(ops *mqt
 		logger.WriteErr(ctx)
 		panic(token.Error())
 	}
-	ctime := time.Since(start).Milliseconds()
+	ctime := time.Since(start).Microseconds()
 	logger.AddMqttConnTime(ctx, int(ctime))
 	return &MqttClient{client}
 }
