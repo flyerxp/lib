@@ -177,7 +177,7 @@ func WriteLine(ctx context.Context) {
 		zap.String("user-agent", nData.Agent),
 		zap.Object("middle", nData.NoticeMetrics.Middle),
 		zap.Object("execTime", nData.ExecMetrics),
-		zap.Int("execTotalTime", nData.NoticeMetrics.TotalExecTime),
+		zap.Float32("execTotalTime", nData.NoticeMetrics.TotalExecTime),
 	).With(nData.NoticeMetrics.Notice...).Info("info")
 	if len(eData.Error) > 1 {
 		if !errLogV.isInitEd {
@@ -188,7 +188,7 @@ func WriteLine(ctx context.Context) {
 			zap.String("logid", logId),
 			zap.Object("middle", nData.NoticeMetrics.Middle),
 			zap.Object("execTime", nData.ExecMetrics),
-			zap.Int("execTotalTime", nData.NoticeMetrics.TotalExecTime),
+			zap.Float32("execTotalTime", nData.NoticeMetrics.TotalExecTime),
 		).With(eData.Error...).WithOptions(zap.AddCallerSkip(2)).Error("error")
 	}
 	if len(wData.Warn) > 1 {
@@ -200,7 +200,7 @@ func WriteLine(ctx context.Context) {
 			zap.String("logid", logId),
 			zap.Object("middle", nData.NoticeMetrics.Middle),
 			zap.Object("execTime", nData.ExecMetrics),
-			zap.Int("execTotalTime", nData.NoticeMetrics.TotalExecTime)).
+			zap.Float32("execTotalTime", nData.NoticeMetrics.TotalExecTime)).
 			With(wData.Warn...).WithOptions(zap.AddCallerSkip(2)).Warn("warn")
 	}
 	tData.Stop()
@@ -238,7 +238,7 @@ func WriteErr(ctx context.Context) {
 			zap.String("logid", logId),
 			zap.Object("middle", nData.NoticeMetrics.Middle),
 			zap.Object("execTime", nData.ExecMetrics),
-			zap.Int("execTotalTime", nData.NoticeMetrics.TotalExecTime),
+			zap.Float32("execTotalTime", nData.NoticeMetrics.TotalExecTime),
 		).With(eData.Error...).WithOptions(zap.AddCallerSkip(2)).Error("error")
 		eData.Error = make([]zap.Field, 1, 10)
 		eData.Error[0] = zap.Namespace("error")
@@ -252,7 +252,7 @@ func WriteErr(ctx context.Context) {
 			zap.String("logid", logId),
 			zap.Object("middle", nData.NoticeMetrics.Middle),
 			zap.Object("execTime", nData.ExecMetrics),
-			zap.Int("execTotalTime", nData.NoticeMetrics.TotalExecTime)).
+			zap.Float32("execTotalTime", nData.NoticeMetrics.TotalExecTime)).
 			With(wData.Warn...).WithOptions(zap.AddCallerSkip(1)).Warn("warn")
 		wData.Warn = make([]zap.Field, 1, 10)
 		wData.Warn[0] = zap.Namespace("warn")
