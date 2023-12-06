@@ -124,7 +124,7 @@ func (e eTimeMetrics) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 type noticeMetrics struct {
 	Notice        []zap.Field
 	Middle        MiddleExecTime
-	TotalExecTime int
+	TotalExecTime float32
 }
 
 func (a MiddleExec) MarshalLogObject(enc zapcore.ObjectEncoder) error {
@@ -407,6 +407,6 @@ func StartTime(name string) ETimeStt {
 }
 func SetExecTime(ctx context.Context, t int) {
 	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-		n.NoticeMetrics.TotalExecTime = t
+		n.NoticeMetrics.TotalExecTime = float32(t) / 1000
 	}
 }
