@@ -62,7 +62,7 @@ type MiddleExecTime struct {
 
 type ETimeStt struct {
 	Start time.Time `json:"start"`
-	Exec  int       `json:"exec"`
+	Exec  float32   `json:"exec"`
 	Name  string    `json:"name"`
 	Step  int       `json:"step"`
 }
@@ -71,11 +71,11 @@ type eTimeMetrics struct {
 }
 
 func (e ETimeStt) MarshalLogObject(enc zapcore.ObjectEncoder) error {
-	enc.AddInt(e.Name, e.Exec)
+	enc.AddFloat32(e.Name, e.Exec/1000)
 	return nil
 }
 func (e *ETimeStt) Stop(ctx context.Context) {
-	e.Exec = int(time.Since(e.Start).Milliseconds())
+	e.Exec = float32(time.Since(e.Start).Microseconds())
 	logId := GetLogId(ctx)
 	if logId == "" {
 		return
@@ -87,7 +87,7 @@ func (e *ETimeStt) Stop(ctx context.Context) {
 	e.Start = time.Now()
 }
 func (e *ETimeStt) StopName(ctx context.Context, Name string) {
-	e.Exec = int(time.Since(e.Start).Milliseconds())
+	e.Exec = float32(time.Since(e.Start).Microseconds())
 	oriName := e.Name
 	e.Name = fmt.Sprintf("%s_%s", e.Name, Name)
 	logId := GetLogId(ctx)
@@ -101,19 +101,19 @@ func (e *ETimeStt) StopName(ctx context.Context, Name string) {
 	e.Step++
 	e.Start = time.Now()
 }
-func (e ETimeStt) GetExec() int {
+func (e ETimeStt) GetExec() float32 {
 	if e.Exec < 0 {
-		e.Exec = int(time.Since(e.Start).Milliseconds())
+		e.Exec = float32(time.Since(e.Start).Microseconds())
 	}
-	return e.Exec
+	return e.Exec / 1000
 }
 func (e eTimeMetrics) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	for i := range e.ETime {
 		//if e.ETime[i].Exec >= 0 {
 		if e.ETime[i].Step > 0 {
-			enc.AddInt(e.ETime[i].Name+"_"+strconv.Itoa(e.ETime[i].Step), e.ETime[i].Exec)
+			enc.AddFloat32(e.ETime[i].Name+"_"+strconv.Itoa(e.ETime[i].Step), e.ETime[i].Exec/1000)
 		} else {
-			enc.AddInt(e.ETime[i].Name, e.ETime[i].Exec)
+			enc.AddFloat32(e.ETime[i].Name, e.ETime[i].Exec/1000)
 		}
 		//}
 	}

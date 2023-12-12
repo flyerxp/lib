@@ -46,7 +46,7 @@ func (h *Hooks) After(ctx context.Context, query string, args ...interface{}) (c
 		}
 	}
 	if h.IsPrintSQLDuration {
-		logger.AddNotice(ctx, zap.String(key, query), zap.Any(agKey, args), zap.Int(h.SqlKey.GetString("execTime"), runTime))
+		logger.AddNotice(ctx, zap.String(key, query), zap.Any(agKey, args), zap.Float32(h.SqlKey.GetString("execTime"), float32(runTime)/1000))
 	}
 	return ctx, nil
 }
