@@ -14,7 +14,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/json-iterator/go v1.1.12
 	github.com/orcaman/concurrent-map/v2 v2.0.1
-	github.com/panjf2000/ants/v2 v2.7.5
+	github.com/panjf2000/ants/v2 v2.9.0
 	github.com/pkg/errors v0.9.1
 	github.com/qustavo/sqlhooks/v2 v2.1.0
 	github.com/russross/blackfriday v1.6.0
@@ -59,7 +59,7 @@ require (
 	golang.org/x/mod v0.11.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/oauth2 v0.9.0 // indirect
-	golang.org/x/sync v0.2.0 // indirect
+	golang.org/x/sync v0.3.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/term v0.13.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
