@@ -40,7 +40,7 @@ type mqttProducer struct {
 func init() {
 	var err error
 	producerQue = new(mqttProducer)
-	producerQue.p, err = ants.NewPool(3, ants.WithExpiryDuration(300*time.Second), ants.WithPreAlloc(true), ants.WithDisablePurge(true), ants.WithPanicHandler(func(a any) {
+	producerQue.p, err = ants.NewPool(3, ants.WithExpiryDuration(300*time.Second), ants.WithPreAlloc(true), ants.WithDisablePurge(false), ants.WithPanicHandler(func(a any) {
 		logger.WarnWithoutCtx(zap.Any("mqtt", a))
 	}))
 	if err != nil {
@@ -62,9 +62,9 @@ func (m *MqttClient) Producer(ctx context.Context, o *OutMessage) error {
 		logger.AddError(ctx, zap.String("mqtt", "json error"), zap.Error(err))
 		return err
 	}
+	producerQue.Wg.Add(1)
+	atomic.AddInt32(&producerQue.Sending, 1)
 	err = producerQue.p.Submit(func() {
-		producerQue.Wg.Add(1)
-		atomic.AddInt32(&producerQue.Sending, 1)
 		//qos  1 网络不稳定情况下,有可能重复，
 		token := m.CurrMqtt.Publish(codeStr, o.Qos, o.Retained, pMessage)
 		ok := token.WaitTimeout(5 * time.Second)
