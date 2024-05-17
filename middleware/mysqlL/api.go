@@ -207,3 +207,6 @@ func GetInsertSql(table string, fields []string) string {
 	}
 	return fmt.Sprintf("insert into `%s` (%s) values(%s)", table, strings.Join(iFields, ","), strings.Join(iValues, ","))
 }
+func IsNoFindRowErr(err error) bool {
+	return err.Error() == "sql: no rows in result set"
+}
