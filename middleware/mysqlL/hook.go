@@ -51,6 +51,9 @@ func (h *Hooks) After(ctx context.Context, query string, args ...interface{}) (c
 	return ctx, nil
 }
 func (h *Hooks) OnError(ctx context.Context, err error, query string, args ...interface{}) error {
+	if err.Error() == "sql: no rows in result set" {
+		return nil
+	}
 	if err.Error() == "driver: bad connection" || err.Error() == "invalid connection" {
 		e, _ := GetEngine(ctx, h.DbName)
 		e.CloseDb()
