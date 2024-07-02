@@ -125,3 +125,6 @@ func (r *redisClient) Reset() {
 		RedisEngine = nil
 	}
 }
+func IsNilErr(e error) bool {
+	return e.Error() == "redis: nil"
+}
