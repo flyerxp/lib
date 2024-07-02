@@ -126,5 +126,8 @@ func (r *redisClient) Reset() {
 	}
 }
 func IsNilErr(e error) bool {
+	if e == nil {
+		return false
+	}
 	return e.Error() == "redis: nil"
 }
