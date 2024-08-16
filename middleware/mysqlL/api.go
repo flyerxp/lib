@@ -9,6 +9,7 @@ import (
 	config2 "github.com/flyerxp/lib/config"
 	"github.com/flyerxp/lib/logger"
 	"github.com/flyerxp/lib/middleware/nacos"
+	"github.com/flyerxp/lib/utils/json"
 	yaml2 "github.com/flyerxp/lib/utils/yaml"
 	"github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -198,15 +199,26 @@ func GetUpdateSql(table string, fields []string) string {
 	}
 	return fmt.Sprintf("update `%s` set %s where ", table, strings.Join(upFields, ","))
 }
+
+type fieldExt struct {
+	F string `json:"f"`
+	V string `json:"v"`
+}
+
 func GetInsertSql(table string, fields []string) string {
 	iFields := make([]string, len(fields))
 	iValues := make([]string, len(fields))
 	for i := range fields {
-		iFields[i] = "`" + fields[i] + "`"
-		if strings.Index(fields[i], ":") == -1 {
-			iValues[i] = fmt.Sprintf(":%s", fields[i])
+		if fields[i][0:6] == "{\"f\":\"" && strings.Index(fields[i], "\"v\":\"") > 0 {
+			tTmp := fieldExt{}
+			e := json.Decode([]byte(fields[i]), &tTmp)
+			if e == nil {
+				iFields[i] = "`" + tTmp.F + "`"
+				iValues[i] = fmt.Sprintf("%s", tTmp.V)
+			}
 		} else {
-			iValues[i] = fmt.Sprintf("%s", fields[i])
+			iFields[i] = "`" + fields[i] + "`"
+			iValues[i] = fmt.Sprintf(":%s", fields[i])
 		}
 	}
 	return fmt.Sprintf("insert into `%s` (%s) values(%s)", table, strings.Join(iFields, ","), strings.Join(iValues, ","))
