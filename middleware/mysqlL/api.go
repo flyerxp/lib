@@ -203,7 +203,11 @@ func GetInsertSql(table string, fields []string) string {
 	iValues := make([]string, len(fields))
 	for i := range fields {
 		iFields[i] = "`" + fields[i] + "`"
-		iValues[i] = fmt.Sprintf(":%s", fields[i])
+		if strings.Index(fields[i], ":") == -1 {
+			iValues[i] = fmt.Sprintf(":%s", fields[i])
+		} else {
+			iValues[i] = fmt.Sprintf("%s", fields[i])
+		}
 	}
 	return fmt.Sprintf("insert into `%s` (%s) values(%s)", table, strings.Join(iFields, ","), strings.Join(iValues, ","))
 }
