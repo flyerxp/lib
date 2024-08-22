@@ -209,7 +209,7 @@ func GetInsertSql(table string, fields []string) string {
 	iFields := make([]string, len(fields))
 	iValues := make([]string, len(fields))
 	for i := range fields {
-		if fields[i][0:6] == "{\"f\":\"" && strings.Index(fields[i], "\"v\":\"") > 0 {
+		if len(fields) > 7 && fields[i][0:6] == "{\"f\":\"" && strings.Index(fields[i], "\"v\":\"") > 0 {
 			tTmp := fieldExt{}
 			e := json.Decode([]byte(fields[i]), &tTmp)
 			if e == nil {
