@@ -5,6 +5,7 @@ import (
 	"errors"
 	config2 "github.com/flyerxp/lib/v2/config"
 	"github.com/flyerxp/lib/v2/logger"
+	"github.com/flyerxp/lib/v2/middleware/redisL"
 	"github.com/flyerxp/lib/v2/utils/json"
 	"github.com/flyerxp/lib/v2/utils/stringL"
 	"github.com/redis/go-redis/v9"
@@ -88,7 +89,7 @@ func (n *Client) GetToken(ctx context.Context) (*AccessToken, error) {
 	key := n.GetKey("/v1/auth/login")
 	rv, err := n.getDataFromCache(ctx, key)
 	// 从缓存中获取
-	if err == nil && rv.Err() != redis.Nil {
+	if err == nil && !redisL.IsNilErr(rv.Err()) {
 		token := new(AccessToken)
 		bt, e := rv.Bytes()
 		jsonErr := json.Decode(bt, token)
