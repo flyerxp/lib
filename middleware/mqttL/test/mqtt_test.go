@@ -25,7 +25,6 @@ func TestProd(T *testing.T) {
 			TopicStr:   "test",
 			Content:    map[string]string{"a": "b", "test": "==============test======" + strconv.Itoa(i) + "============"},
 			Properties: map[string]string{"prop": "prop"},
-			Delay:      0,
 		})
 	}
 	fmt.Println(time.Since(t).Milliseconds(), "总耗时！")
