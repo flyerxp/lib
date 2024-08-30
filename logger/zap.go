@@ -2,7 +2,7 @@ package logger
 
 import (
 	"context"
-	config2 "github.com/flyerxp/lib/config"
+	config2 "github.com/flyerxp/lib/v2/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

@@ -3,8 +3,8 @@ package write
 import (
 	"context"
 	"errors"
-	"github.com/flyerxp/lib/logger"
-	"github.com/flyerxp/lib/middleware/elastic/tool"
+	"github.com/flyerxp/lib/v2/logger"
+	"github.com/flyerxp/lib/v2/middleware/elastic/tool"
 	fasthttp "github.com/valyala/fasthttp"
 	"time"
 )

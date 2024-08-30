@@ -2,7 +2,7 @@ package test
 
 import (
 	"fmt"
-	"github.com/flyerxp/lib/utils/arrayL"
+	"github.com/flyerxp/lib/v2/utils/arrayL"
 	"testing"
 )
 

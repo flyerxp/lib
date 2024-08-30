@@ -2,8 +2,8 @@ package redisL
 
 import (
 	"context"
-	"github.com/flyerxp/lib/config"
-	"github.com/flyerxp/lib/logger"
+	"github.com/flyerxp/lib/v2/config"
+	"github.com/flyerxp/lib/v2/logger"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"net"

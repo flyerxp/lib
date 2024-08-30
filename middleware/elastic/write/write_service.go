@@ -2,8 +2,8 @@ package write
 
 import (
 	"context"
-	"github.com/flyerxp/lib/middleware/elastic/http"
-	"github.com/flyerxp/lib/middleware/elastic/table"
+	"github.com/flyerxp/lib/v2/middleware/elastic/http"
+	"github.com/flyerxp/lib/v2/middleware/elastic/table"
 	"time"
 )
 

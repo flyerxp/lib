@@ -3,8 +3,8 @@ package mqttL
 import (
 	"context"
 	"encoding/json"
-	"github.com/flyerxp/lib/logger"
-	json2 "github.com/flyerxp/lib/utils/json"
+	"github.com/flyerxp/lib/v2/logger"
+	json2 "github.com/flyerxp/lib/v2/utils/json"
 	"go.uber.org/zap"
 	"time"
 )

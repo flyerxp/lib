@@ -1,7 +1,7 @@
 package yaml
 
 import (
-	yaml "github.com/flyerxp/lib/utils/yaml"
+	yaml "github.com/flyerxp/lib/v2/utils/yaml"
 	"os"
 	"testing"
 )

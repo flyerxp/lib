@@ -3,9 +3,9 @@ package zookeeper
 import (
 	"context"
 	"errors"
-	"github.com/flyerxp/lib/logger"
-	"github.com/flyerxp/lib/utils/env"
-	yaml "github.com/flyerxp/lib/utils/yaml"
+	"github.com/flyerxp/lib/v2/logger"
+	"github.com/flyerxp/lib/v2/utils/env"
+	yaml "github.com/flyerxp/lib/v2/utils/yaml"
 	"github.com/go-zookeeper/zk"
 	"go.uber.org/zap"
 	"path/filepath"

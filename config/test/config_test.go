@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"github.com/flyerxp/lib/config"
+	"github.com/flyerxp/lib/v2/config"
 	"testing"
 )
 

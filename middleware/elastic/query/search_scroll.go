@@ -2,7 +2,7 @@ package query
 
 import (
 	"encoding/json"
-	"github.com/flyerxp/lib/logger"
+	"github.com/flyerxp/lib/v2/logger"
 	"go.uber.org/zap"
 	"io"
 )

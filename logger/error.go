@@ -2,8 +2,8 @@ package logger
 
 import (
 	json2 "encoding/json"
-	config2 "github.com/flyerxp/lib/config"
-	"github.com/flyerxp/lib/utils/json"
+	config2 "github.com/flyerxp/lib/v2/config"
+	"github.com/flyerxp/lib/v2/utils/json"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"log"

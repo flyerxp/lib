@@ -1,9 +1,9 @@
 package config
 
 import (
-	"github.com/flyerxp/lib/utils/env"
-	"github.com/flyerxp/lib/utils/json"
-	yaml "github.com/flyerxp/lib/utils/yaml"
+	"github.com/flyerxp/lib/v2/utils/env"
+	"github.com/flyerxp/lib/v2/utils/json"
+	yaml "github.com/flyerxp/lib/v2/utils/yaml"
 	_ "go.uber.org/zap/zapcore"
 	"log"
 	"path/filepath"

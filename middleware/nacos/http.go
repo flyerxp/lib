@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/flyerxp/lib/logger"
+	"github.com/flyerxp/lib/v2/logger"
 	cmap "github.com/orcaman/concurrent-map/v2"
 	"github.com/valyala/fasthttp"
 	zap "go.uber.org/zap"

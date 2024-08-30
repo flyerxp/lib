@@ -2,7 +2,7 @@ package app
 
 import (
 	"context"
-	"github.com/flyerxp/lib/logger"
+	"github.com/flyerxp/lib/v2/logger"
 )
 
 type event struct {

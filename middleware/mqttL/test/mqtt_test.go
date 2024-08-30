@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/eclipse/paho.mqtt.golang"
-	"github.com/flyerxp/lib/logger"
-	"github.com/flyerxp/lib/middleware/mqttL"
+	"github.com/flyerxp/lib/v2/logger"
+	"github.com/flyerxp/lib/v2/middleware/mqttL"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -19,7 +20,7 @@ func TestProd(T *testing.T) {
 	fmt.Println("============")
 	client, err := mqttL.GetEngine(ctx, "pubMqtt")
 	fmt.Println("============", err, client, t)
-	/*for i := 0; i < 1; i++ {
+	for i := 0; i < 1; i++ {
 		_ = client.Producer(ctx, &mqttL.OutMessage{
 			TopicStr:   "test",
 			Content:    map[string]string{"a": "b", "test": "==============test======" + strconv.Itoa(i) + "============"},
@@ -29,7 +30,7 @@ func TestProd(T *testing.T) {
 	}
 	fmt.Println(time.Since(t).Milliseconds(), "总耗时！")
 	mqttL.Flush(ctx)
-	logger.WriteLine(ctx)*/
+	logger.WriteLine(ctx)
 }
 func TestConsum(T *testing.T) {
 	//return

@@ -2,9 +2,9 @@ package query
 
 import (
 	"context"
-	"github.com/flyerxp/lib/logger"
-	"github.com/flyerxp/lib/middleware/elastic/http"
-	"github.com/flyerxp/lib/middleware/elastic/table"
+	"github.com/flyerxp/lib/v2/logger"
+	"github.com/flyerxp/lib/v2/middleware/elastic/http"
+	"github.com/flyerxp/lib/v2/middleware/elastic/table"
 	"go.uber.org/zap"
 	"strconv"
 	"time"

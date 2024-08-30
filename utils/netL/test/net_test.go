@@ -2,7 +2,7 @@ package netL
 
 import (
 	"fmt"
-	"github.com/flyerxp/lib/utils/netL"
+	"github.com/flyerxp/lib/v2/utils/netL"
 	"net"
 	"testing"
 )

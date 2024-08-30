@@ -2,11 +2,11 @@ package elastic
 
 import (
 	"context"
-	"github.com/flyerxp/lib/app"
-	"github.com/flyerxp/lib/config"
-	"github.com/flyerxp/lib/logger"
-	"github.com/flyerxp/lib/middleware/nacos"
-	yaml2 "github.com/flyerxp/lib/utils/yaml"
+	"github.com/flyerxp/lib/v2/app"
+	"github.com/flyerxp/lib/v2/config"
+	"github.com/flyerxp/lib/v2/logger"
+	"github.com/flyerxp/lib/v2/middleware/nacos"
+	yaml2 "github.com/flyerxp/lib/v2/utils/yaml"
 	"github.com/jmoiron/sqlx"
 	cmap "github.com/orcaman/concurrent-map/v2"
 	"github.com/pkg/errors"

@@ -3,8 +3,8 @@ package test
 import (
 	"context"
 	"fmt"
-	"github.com/flyerxp/lib/logger"
-	"github.com/flyerxp/lib/middleware/zookeeper"
+	"github.com/flyerxp/lib/v2/logger"
+	"github.com/flyerxp/lib/v2/middleware/zookeeper"
 	"testing"
 )
 

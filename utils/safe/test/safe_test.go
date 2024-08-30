@@ -2,7 +2,7 @@ package test
 
 import (
 	"fmt"
-	"github.com/flyerxp/lib/utils/safe"
+	"github.com/flyerxp/lib/v2/utils/safe"
 	jwt "github.com/golang-jwt/jwt/v5"
 	"testing"
 )

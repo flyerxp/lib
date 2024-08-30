@@ -3,8 +3,8 @@ package redisL
 import (
 	"context"
 	"fmt"
-	"github.com/flyerxp/lib/logger"
-	"github.com/flyerxp/lib/middleware/redisL"
+	"github.com/flyerxp/lib/v2/logger"
+	"github.com/flyerxp/lib/v2/middleware/redisL"
 	"go.uber.org/zap"
 	"testing"
 	"time"

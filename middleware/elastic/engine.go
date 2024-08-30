@@ -2,12 +2,12 @@ package elastic
 
 import (
 	"context"
-	"github.com/flyerxp/lib/config"
-	"github.com/flyerxp/lib/logger"
-	"github.com/flyerxp/lib/middleware/elastic/http"
-	"github.com/flyerxp/lib/middleware/elastic/query"
-	"github.com/flyerxp/lib/middleware/elastic/table"
-	"github.com/flyerxp/lib/middleware/elastic/write"
+	"github.com/flyerxp/lib/v2/config"
+	"github.com/flyerxp/lib/v2/logger"
+	"github.com/flyerxp/lib/v2/middleware/elastic/http"
+	"github.com/flyerxp/lib/v2/middleware/elastic/query"
+	"github.com/flyerxp/lib/v2/middleware/elastic/table"
+	"github.com/flyerxp/lib/v2/middleware/elastic/write"
 )
 
 type QEngine struct {

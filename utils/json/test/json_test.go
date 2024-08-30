@@ -1,7 +1,7 @@
 package json
 
 import (
-	json2 "github.com/flyerxp/lib/utils/json"
+	json2 "github.com/flyerxp/lib/v2/utils/json"
 	"testing"
 )
 

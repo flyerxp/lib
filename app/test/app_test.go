@@ -3,7 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
-	"github.com/flyerxp/lib/app"
+	"github.com/flyerxp/lib/v2/app"
 	"strconv"
 	"testing"
 )

@@ -3,10 +3,10 @@ package nacos
 import (
 	"context"
 	"fmt"
-	"github.com/flyerxp/lib/config"
-	"github.com/flyerxp/lib/logger"
-	"github.com/flyerxp/lib/middleware/nacos"
-	yaml "github.com/flyerxp/lib/utils/yaml"
+	"github.com/flyerxp/lib/v2/config"
+	"github.com/flyerxp/lib/v2/logger"
+	"github.com/flyerxp/lib/v2/middleware/nacos"
+	yaml "github.com/flyerxp/lib/v2/utils/yaml"
 	"testing"
 )
 

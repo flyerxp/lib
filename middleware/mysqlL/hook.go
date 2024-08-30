@@ -2,8 +2,8 @@ package mysqlL
 
 import (
 	"context"
-	"github.com/flyerxp/lib/config"
-	"github.com/flyerxp/lib/logger"
+	"github.com/flyerxp/lib/v2/config"
+	"github.com/flyerxp/lib/v2/logger"
 	"go.uber.org/zap"
 	"time"
 )
