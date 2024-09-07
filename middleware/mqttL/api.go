@@ -179,7 +179,8 @@ func newClient(ctx context.Context, o config2.MidMqttConf, opsF ...func(ops *mqt
 	opts.SetConnectRetry(true)
 	opts.SetAutoReconnect(true)
 	opts.SetConnectTimeout(1 * time.Second)
-	opts.SetConnectRetryInterval(5 * time.Second)
+	opts.SetConnectRetryInterval(2 * time.Second)
+	opts.SetMaxReconnectInterval(10 * time.Second)
 	opts.SetWriteTimeout(time.Second * 1)
 	opts.SetConnectionLostHandler(func(client mqtt.Client, err error) {
 		logger.WarnWithoutCtx(zap.String("mqtt", "mqtt connect lost"), zap.Error(err))
