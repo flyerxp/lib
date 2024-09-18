@@ -51,11 +51,11 @@ func newClient(o config2.MidNacos) *Client {
 			//ConnMaxLifetime: 30 * time.Second,
 			ConnMaxIdleTime: 30 * time.Second,
 		}
-		if o.User != "" {
-			op.Username = o.User
+		if o.Redis.User != "" {
+			op.Username = o.Redis.User
 		}
-		if o.Pwd != "" {
-			op.Password = o.Pwd
+		if o.Redis.Pwd != "" {
+			op.Password = o.Redis.Pwd
 		}
 		redisClient = redis.NewUniversalClient(op)
 	}
