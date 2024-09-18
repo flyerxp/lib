@@ -87,12 +87,15 @@ func (n *Client) DelToken(ctx context.Context) {
 	key := n.GetKey("/v1/auth/login")
 	redisClient.Del(ctx, key)
 }
-func (n *Client) redisIsNilErr(e error) bool {
-	if e == nil {
-		return false
+
+/*
+	func (n *Client) redisIsNilErr(e error) bool {
+		if e == nil {
+			return false
+		}
+		return e.Error() == "redis: nil"
 	}
-	return e.Error() == "redis: nil"
-}
+*/
 func (n *Client) GetToken(ctx context.Context) (*AccessToken, error) {
 	if n.Token != nil && n.Token.Expiration > time.Now().Unix() {
 		return n.Token, nil
@@ -100,7 +103,7 @@ func (n *Client) GetToken(ctx context.Context) (*AccessToken, error) {
 	key := n.GetKey("/v1/auth/login")
 	rv, err := n.getDataFromCache(ctx, key)
 	// 从缓存中获取
-	if err == nil && !n.redisIsNilErr(rv.Err()) {
+	if err == nil {
 		token := new(AccessToken)
 		bt, e := rv.Bytes()
 		jsonErr := json.Decode(bt, token)
