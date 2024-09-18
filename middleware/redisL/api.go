@@ -77,13 +77,17 @@ func GetEngine(ctx context.Context, name string) (*RedisC, error) {
 		op := &redis.UniversalOptions{
 			Addrs:        o.Address,
 			MasterName:   o.Master,
-			Username:     o.User,
-			Password:     o.Pwd,
 			PoolTimeout:  time.Millisecond * time.Duration(500),
 			ReadTimeout:  time.Millisecond * time.Duration(500),
 			WriteTimeout: time.Millisecond * time.Duration(500),
 			DialTimeout:  time.Millisecond * time.Duration(500),
 			MaxIdleConns: 30,
+		}
+		if o.User != "" {
+			op.Username = o.User
+		}
+		if o.Pwd != "" {
+			op.Password = o.Pwd
 		}
 		if o.WriteTimeout > 0 {
 			op.WriteTimeout = time.Millisecond * time.Duration(o.WriteTimeout)
@@ -112,7 +116,7 @@ func GetEngine(ctx context.Context, name string) (*RedisC, error) {
 	logger.AddError(ctx, zap.Error(errors.New("no find redis config "+name)))
 	return nil, errors.New("no find redis config " + name)
 }
-func (r *RedisC) GetConf(name string) config2.MidRedisConf {
+func (r *RedisC) GetConf() config2.MidRedisConf {
 	return r.Conf
 }
 func (r *redisClient) Reset() {

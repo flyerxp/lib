@@ -39,11 +39,9 @@ func GetEngine(ctx context.Context, name string) (*Client, error) {
 }
 func newClient(ctx context.Context, o config2.MidNacos) *Client {
 	if redisClient == nil {
-		redisClient = redis.NewUniversalClient(&redis.UniversalOptions{
+		op := &redis.UniversalOptions{
 			Addrs:        o.Redis.Address,
 			MasterName:   o.Redis.Master,
-			Username:     o.Redis.User,
-			Password:     o.Redis.Pwd,
 			PoolTimeout:  time.Millisecond * time.Duration(500),
 			ReadTimeout:  time.Millisecond * time.Duration(500),
 			WriteTimeout: time.Millisecond * time.Duration(500),
@@ -52,8 +50,16 @@ func newClient(ctx context.Context, o config2.MidNacos) *Client {
 			MaxRetries:   3,
 			//ConnMaxLifetime: 30 * time.Second,
 			ConnMaxIdleTime: 30 * time.Second,
-		})
+		}
+		if o.User != "" {
+			op.Username = o.User
+		}
+		if o.Pwd != "" {
+			op.Password = o.Pwd
+		}
+		redisClient = redis.NewUniversalClient(op)
 	}
+
 	c := &Client{
 		o,
 		&sync.Pool{
@@ -142,7 +148,7 @@ func (n *Client) GetConfig(ctx context.Context, did string, gp string, ns string
 	start := time.Now()
 	key := n.GetKey("/nacos/v1/cs/configs" + "@@" + did + "@@" + gp + "@@" + ns)
 	rv, rErr := n.getDataFromCache(ctx, key)
-	if rErr == nil && rv.Err() != redis.Nil {
+	if rErr == nil {
 		logger.AddNacosTime(ctx, int(time.Since(start).Microseconds()))
 		return rv.Bytes()
 	}
