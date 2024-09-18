@@ -31,13 +31,13 @@ var redisClient redis.UniversalClient
 func GetEngine(ctx context.Context, name string) (*Client, error) {
 	for _, v := range config2.GetConf().Nacos {
 		if v.Name == name {
-			return newClient(ctx, v), nil
+			return newClient(v), nil
 		}
 	}
 	logger.AddError(ctx, zap.Error(errors.New("nacos conf no find "+name)))
 	return nil, errors.New("nacos conf no find " + name)
 }
-func newClient(ctx context.Context, o config2.MidNacos) *Client {
+func newClient(o config2.MidNacos) *Client {
 	if redisClient == nil {
 		op := &redis.UniversalOptions{
 			Addrs:        o.Redis.Address,
