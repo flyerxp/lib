@@ -88,14 +88,13 @@ func (n *Client) DelToken(ctx context.Context) {
 	redisClient.Del(ctx, key)
 }
 
-/*
-	func (n *Client) redisIsNilErr(e error) bool {
-		if e == nil {
-			return false
-		}
-		return e.Error() == "redis: nil"
+func (n *Client) redisIsNilErr(e error) bool {
+	if e == nil {
+		return false
 	}
-*/
+	return e.Error() == "redis: nil"
+}
+
 func (n *Client) GetToken(ctx context.Context) (*AccessToken, error) {
 	if n.Token != nil && n.Token.Expiration > time.Now().Unix() {
 		return n.Token, nil
@@ -103,7 +102,7 @@ func (n *Client) GetToken(ctx context.Context) (*AccessToken, error) {
 	key := n.GetKey("/v1/auth/login")
 	rv, err := n.getDataFromCache(ctx, key)
 	// 从缓存中获取
-	if err == nil {
+	if err == nil && !n.redisIsNilErr(rv.Err()) {
 		token := new(AccessToken)
 		bt, e := rv.Bytes()
 		jsonErr := json.Decode(bt, token)
@@ -151,7 +150,7 @@ func (n *Client) GetConfig(ctx context.Context, did string, gp string, ns string
 	start := time.Now()
 	key := n.GetKey("/nacos/v1/cs/configs" + "@@" + did + "@@" + gp + "@@" + ns)
 	rv, rErr := n.getDataFromCache(ctx, key)
-	if rErr == nil {
+	if rErr == nil && !n.redisIsNilErr(rv.Err()) {
 		logger.AddNacosTime(ctx, int(time.Since(start).Microseconds()))
 		return rv.Bytes()
 	}
