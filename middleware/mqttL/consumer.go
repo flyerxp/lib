@@ -28,6 +28,7 @@ type Consumer struct {
 type Options struct {
 	Name        int
 	MaxConsumer int
+	DecodeFun   func([]byte, *MqttMessage) error
 }
 type Option func(opts *Options)
 
@@ -114,7 +115,12 @@ func (c *Consumer) Consumer(F func(context.Context, mqtt.Message, *MqttMessage) 
 				logger.SetAddr(ctx, ip[0].String(), ip[0].String())
 				atomic.AddInt64(&c.Counter, 1)
 				gProductChan := new(MqttMessage)
-				err = json2.Decode(cm.Payload(), gProductChan)
+				if c.Options.DecodeFun != nil {
+					gProductChan.Topic = cm.Topic()
+					err = c.Options.DecodeFun(cm.Payload(), gProductChan)
+				} else {
+					err = json2.Decode(cm.Payload(), gProductChan)
+				}
 				if err != nil {
 					logger.AddError(ctx, zap.Error(err))
 					logger.WriteErr(ctx)
