@@ -163,6 +163,8 @@ func (c *Consumer) Consumer(F func(context.Context, *pulsar.ConsumerMessage, *Pu
 			}
 		case <-time.After(time.Second * 30):
 			fmt.Println("30秒没有消息")
+		case <-ctx.Done():
+			c.IsStop = true
 		}
 	}
 }
