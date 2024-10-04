@@ -172,9 +172,10 @@ func newClient(ctx context.Context, o config2.MidMqttConf, opsF ...func(ops *mqt
 		opts.SetPassword(o.Pwd)
 	}
 	//opts.SetTLSConfig(&tls.Config{InsecureSkipVerify: false, ClientAuth: tls.NoClientCert})
+	clientId := fmt.Sprintf("%s_%s_%s_%d", conf.Type, conf.Name, time.Now().Format("01_02_150405"), rand.Intn(1000))
 	opts.SetKeepAlive(30 * time.Second)
 	opts.SetPingTimeout(1 * time.Second)
-	opts.SetClientID(conf.Type + "_" + conf.Name + "_" + time.Now().Format("01_02_150405") + "_" + strconv.Itoa(rand.Intn(1000)))
+	opts.SetClientID(clientId)
 	opts.SetPingTimeout(1 * time.Second)
 	opts.SetConnectRetry(true)
 	opts.SetAutoReconnect(true)
@@ -196,7 +197,14 @@ func newClient(ctx context.Context, o config2.MidMqttConf, opsF ...func(ops *mqt
 	token := client.Connect()
 	ok := token.WaitTimeout(500 * time.Millisecond)
 	if !ok {
-		logger.ErrWithoutCtx(zap.String(o.Name+" timeout", strings.Join(o.Address, ",")))
+		errString := fmt.Sprintf("name:%s,host:%s,scheme:%s,user:%s,passwd:%s",
+			o.Name,
+			strings.Join(o.Address, ","),
+			o.Scheme,
+			o.User,
+			o.Pwd)
+		logger.ErrWithoutCtx(zap.String(o.Name+" timeout", errString))
+
 		panic("mqtt 连接超时" + o.Name)
 	}
 	if token.Error() != nil {
