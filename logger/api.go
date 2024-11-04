@@ -23,6 +23,18 @@ func init() {
 
 // 快速获取一个带logid上下文的context
 func GetContext(ctx context.Context, logId string) context.Context {
+	//第二天重置
+	if CurrDay != time.Now().Day() {
+		makeFileEventNew := make([]Event, 0, 15)
+		for _, v := range makeFileEvent {
+			makeFileEventNew = append(makeFileEventNew, v)
+		}
+		makeFileEvent = make([]Event, 0, 15)
+		for _, f := range makeFileEventNew {
+			f.F()
+		}
+		CurrDay = time.Now().Day()
+	}
 	ctx = context.WithValue(ctx, GetLogIdKey(), logId)
 	RegisterNewLog(ctx)
 	return ctx
@@ -156,18 +168,6 @@ func WriteLine(ctx context.Context) {
 	if !noticeLog.isInitEd {
 		getNoticeLog()
 	}
-	//第二天重置
-	if CurrDay != time.Now().Day() {
-		makeFileEventNew := make([]Event, 0, 15)
-		for _, v := range makeFileEvent {
-			makeFileEventNew = append(makeFileEventNew, v)
-		}
-		makeFileEvent = make([]Event, 0, 15)
-		for _, f := range makeFileEventNew {
-			f.F()
-		}
-		CurrDay = time.Now().Day()
-	}
 	logId := ctx.Value(GetLogIdKey()).(string)
 	if logId == "" {
 		return
@@ -220,7 +220,18 @@ func WriteLine(ctx context.Context) {
 	dataContainer.WarnData.Remove(logId)
 	dataContainer.ErrData.Remove(logId)
 	dataContainer.Clear.Remove(logId)
-
+	//第二天重置
+	if CurrDay != time.Now().Day() {
+		makeFileEventNew := make([]Event, 0, 15)
+		for _, v := range makeFileEvent {
+			makeFileEventNew = append(makeFileEventNew, v)
+		}
+		makeFileEvent = make([]Event, 0, 15)
+		for _, f := range makeFileEventNew {
+			f.F()
+		}
+		CurrDay = time.Now().Day()
+	}
 }
 func WriteErr(ctx context.Context) {
 	logId := GetLogId(ctx)
