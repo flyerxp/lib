@@ -158,7 +158,7 @@ func GetEngine(ctx context.Context, name string, opsF ...func(ops *mqtt.ClientOp
 func newClient(ctx context.Context, o config2.MidMqttConf, opsF ...func(ops *mqtt.ClientOptions)) *MqttClient {
 	conf := config2.GetConf().App
 	opts := mqtt.NewClientOptions()
-	if o.Scheme == "ssl" {
+	if o.Scheme == "mqtts" {
 		opts.SetTLSConfig(&tls.Config{InsecureSkipVerify: false, ClientAuth: tls.NoClientCert})
 	}
 	opts.SetClientID(conf.Type + "_" + conf.Name + "_" + time.Now().Format("01_02_150405") + "_" + strconv.Itoa(rand.Intn(1000)))
