@@ -31,7 +31,7 @@ require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.2 // indirect
-	github.com/AthenZ/athenz v1.12.3 // indirect
+	github.com/AthenZ/athenz v1.12.4 // indirect
 	github.com/DataDog/zstd v1.5.6 // indirect
 	github.com/andeya/ameda v1.5.3 // indirect
 	github.com/andeya/goutil v1.0.1 // indirect
@@ -42,7 +42,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/danieljoos/wincred v1.2.2 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/dvsekhvalnov/jose2go v1.7.0 // indirect
+	github.com/dvsekhvalnov/jose2go v1.8.0 // indirect
 	github.com/frankban/quicktest v1.14.6 // indirect
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.0.4 // indirect
@@ -63,7 +63,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/nyaruka/phonenumbers v1.4.1 // indirect
+	github.com/nyaruka/phonenumbers v1.4.2 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/prometheus/client_golang v1.20.5 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
@@ -82,14 +82,13 @@ require (
 	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/term v0.26.0 // indirect
 	golang.org/x/text v0.20.0 // indirect
-	google.golang.org/protobuf v1.35.1 // indirect
+	google.golang.org/protobuf v1.35.2 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	k8s.io/apimachinery v0.31.2 // indirect
 	k8s.io/client-go v0.31.2 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/utils v0.0.0-20241104163129-6fe5fd82f078 // indirect
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
-	sigs.k8s.io/structured-merge-diff/v4 v4.4.2 // indirect
+	sigs.k8s.io/structured-merge-diff/v4 v4.4.3 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )
