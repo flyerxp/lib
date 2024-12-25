@@ -56,6 +56,7 @@ type MqttClient struct {
 
 func (m *MqttClient) Producer(ctx context.Context, o *OutMessage) error {
 	start := time.Now()
+	o.Method = "normal"
 	codeStr := o.TopicStr
 	pMessage, err := json2.Encode(getMqttMessage(o, codeStr, ctx))
 	if err != nil {
@@ -67,6 +68,38 @@ func (m *MqttClient) Producer(ctx context.Context, o *OutMessage) error {
 	err = producerQue.p.Submit(func() {
 		//qos  1 网络不稳定情况下,有可能重复，
 		token := m.CurrMqtt.Publish(codeStr, o.Qos, o.Retained, pMessage)
+		ok := token.WaitTimeout(5 * time.Second)
+		if !ok {
+			logger.ErrWithoutCtx(zap.String("mqttSendTimeout", o.TopicStr), zap.Any(codeStr, pMessage))
+		}
+		if token.Error() != nil {
+			logger.ErrWithoutCtx(zap.String("mqttSendFail", o.TopicStr), zap.Error(token.Error()), zap.Any(codeStr, pMessage))
+		}
+		atomic.AddInt32(&producerQue.Sending, -1)
+		producerQue.Wg.Done()
+	})
+	if err != nil {
+		logger.AddError(ctx, zap.String("matt", "ants errors"), zap.Error(err))
+		return err
+	}
+	logger.AddMqttTime(ctx, int(time.Since(start).Microseconds()))
+	return nil
+}
+
+func (m *MqttClient) ProducerContent(ctx context.Context, o *OutMessage) error {
+	start := time.Now()
+	o.Method = "onlyContent"
+	codeStr := o.TopicStr
+	pMessage, err := json2.Encode(getMqttMessage(o, codeStr, ctx))
+	if err != nil {
+		logger.AddError(ctx, zap.String("mqtt", "json error"), zap.Error(err))
+		return err
+	}
+	producerQue.Wg.Add(1)
+	atomic.AddInt32(&producerQue.Sending, 1)
+	err = producerQue.p.Submit(func() {
+		//qos  1 网络不稳定情况下,有可能重复，
+		token := m.CurrMqtt.Publish(codeStr, o.Qos, o.Retained, o.Content)
 		ok := token.WaitTimeout(5 * time.Second)
 		if !ok {
 			logger.ErrWithoutCtx(zap.String("mqttSendTimeout", o.TopicStr), zap.Any(codeStr, pMessage))

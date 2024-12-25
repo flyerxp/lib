@@ -26,6 +26,7 @@ func (p MqttMessage) String() string {
 
 type OutMessage struct {
 	TopicStr   string            `json:"topic_str"`
+	Method     string            `json:"method"`
 	Content    any               `json:"content"`
 	Properties map[string]string `json:"properties"`
 	Key        string            `json:"key"`
