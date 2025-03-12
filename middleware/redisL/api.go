@@ -83,6 +83,9 @@ func GetEngine(ctx context.Context, name string) (*RedisC, error) {
 			DialTimeout:  time.Millisecond * time.Duration(500),
 			MaxIdleConns: 30,
 		}
+		if o.DB > 0 {
+			op.DB = o.DB
+		}
 		if o.User != "" {
 			op.Username = o.User
 		}

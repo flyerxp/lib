@@ -65,6 +65,7 @@ type MidRedisConf struct {
 	ReadTimeout  int      `yaml:"read_timeout" json:"read_timeout"`
 	WriteTimeout int      `yaml:"write_timeout" json:"write_timeout"`
 	DialTimeout  int      `json:"dial_timeout" yaml:"dial_timeout"`
+	DB           int      `json:"db" yaml:"db"`
 	Master       string   `yaml:"master" json:"master"` //哨兵模式使用，写masterName
 }
 type RedisConf struct {
