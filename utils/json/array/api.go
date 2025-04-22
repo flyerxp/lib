@@ -48,6 +48,42 @@ func StringToArrayString(strIds string, isFilter bool) []string {
 	}
 	return delIds
 }
+
+func StringToArrayInt32(strIds string, isFilter bool) []int32 {
+	Ids := strings.Split(strIds, ",")
+	delIds := make([]int32, 0, len(Ids))
+	for _, v := range Ids {
+		if isFilter {
+			if vv, e := strconv.Atoi(v); vv > 0 && e == nil {
+				delIds = append(delIds, int32(vv))
+			}
+		} else {
+			vv, e := strconv.Atoi(v)
+			if e == nil {
+				delIds = append(delIds, int32(vv))
+			}
+		}
+	}
+	return delIds
+}
+
+func StringToArrayInt(strIds string, isFilter bool) []int {
+	Ids := strings.Split(strIds, ",")
+	delIds := make([]int, 0, len(Ids))
+	for _, v := range Ids {
+		if isFilter {
+			if vv, e := strconv.Atoi(v); vv > 0 && e == nil {
+				delIds = append(delIds, vv)
+			}
+		} else {
+			vv, e := strconv.Atoi(v)
+			if e == nil {
+				delIds = append(delIds, vv)
+			}
+		}
+	}
+	return delIds
+}
 func GetIntMapKey(m map[int]any) []int {
 	t := make([]int, 0, len(m))
 	for i := range m {

@@ -2,8 +2,6 @@ module github.com/flyerxp/lib/v2
 
 go 1.24
 
-toolchain go1.24.2
-
 require (
 	github.com/apache/pulsar-client-go v0.14.0
 	github.com/bytedance/go-tagexpr/v2 v2.9.11
@@ -21,7 +19,7 @@ require (
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/russross/blackfriday v1.6.0
 	github.com/sirupsen/logrus v1.9.3
-	github.com/valyala/fasthttp v1.60.0
+	github.com/valyala/fasthttp v1.61.0
 	go.uber.org/zap v1.27.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 	gopkg.in/yaml.v3 v3.0.1
