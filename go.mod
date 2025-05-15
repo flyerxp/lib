@@ -1,8 +1,6 @@
 module github.com/flyerxp/lib/v2
 
-go 1.24.0
-
-toolchain go1.24.2
+go 1.24.2
 
 require (
 	github.com/apache/pulsar-client-go v0.15.0
