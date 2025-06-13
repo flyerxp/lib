@@ -5,6 +5,7 @@ import (
 	"github.com/flyerxp/lib/v2/config"
 	"github.com/flyerxp/lib/v2/logger"
 	"go.uber.org/zap"
+	"strings"
 	"time"
 )
 
@@ -51,7 +52,7 @@ func (h *Hooks) After(ctx context.Context, query string, args ...interface{}) (c
 	return ctx, nil
 }
 func (h *Hooks) OnError(ctx context.Context, err error, query string, args ...interface{}) error {
-	if err.Error() == "driver: bad connection" || err.Error() == "invalid connection" {
+	if err.Error() == "driver: bad connection" || err.Error() == "invalid connection" || strings.Contains(err.Error(), "Server shutdown in progress") {
 		e, _ := GetEngine(ctx, h.DbName)
 		e.CloseDb()
 	}
