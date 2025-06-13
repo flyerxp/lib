@@ -67,5 +67,5 @@ func (h *Hooks) OnError(ctx context.Context, err error, query string, args ...in
 	if h.IsPrintSQLDuration {
 		logger.AddNotice(ctx, zap.String(key, query), zap.Any(agKey, args), zap.Int(h.SqlKey.GetString("execTime"), runTime))
 	}
-	return nil
+	return err
 }
