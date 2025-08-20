@@ -3,6 +3,7 @@ package logger
 import (
 	"context"
 	"fmt"
+	config2 "github.com/flyerxp/lib/v2/config"
 	cmap "github.com/orcaman/concurrent-map/v2"
 	"go.uber.org/zap"
 	"os"
@@ -13,11 +14,12 @@ import (
 
 func init() {
 	dataContainer = new(DataContainer)
-
 	go func() {
-		getNoticeLog()
-		getErrorLog()
-		getWarnLog()
+		if config2.GetConf().App.Type != "consumer" || config2.GetConf().App.Type != "cron" {
+			getNoticeLog()
+			getErrorLog()
+			getWarnLog()
+		}
 	}()
 }
 
