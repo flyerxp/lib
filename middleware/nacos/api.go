@@ -168,13 +168,13 @@ func (n *Client) GetConfig(ctx context.Context, did string, gp string, ns string
 		s.Stop(ctx)
 		if bErr == nil {
 			sYaml := string(bYaml)
-			if rv.String() != sYaml {
+			if rv == nil || rv.String() != sYaml {
 				redisClient.Set(ctx, key, sYaml, time.Second*86400*2)
 			}
 			logger.AddNacosTime(ctx, int(time.Since(start).Microseconds()))
 			return bYaml, nil
 		} else {
-			if rErr != nil && rv.Val() != "" {
+			if rErr != nil && rv != nil && rv.Val() != "" {
 				logger.AddNacosTime(ctx, int(time.Since(start).Microseconds()))
 				return rv.Bytes()
 			}

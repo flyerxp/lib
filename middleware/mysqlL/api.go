@@ -26,6 +26,7 @@ import (
 type SqlContainer struct {
 	SqlContainer cmap.ConcurrentMap[string, *MysqlClient]
 	MysqlConf    cmap.ConcurrentMap[string, config2.MidMysqlConf]
+	MyLock       *sync.Mutex
 }
 
 // Mysql 客户端
@@ -54,43 +55,49 @@ func (m *MysqlLog) Print(ctx context.Context, v ...interface{}) {
 	logger.AddError(ctx, zapLog...)
 }
 func GetEngine(ctx context.Context, name string) (*MysqlClient, error) {
+	if MysqlEngine.MyLock == nil {
+		MysqlEngine.MyLock = new(sync.Mutex)
+	}
 	if MysqlEngine == nil {
-		MysqlEngine = new(SqlContainer)
-		var confList []config2.MidMysqlConf
-		MysqlEngine.MysqlConf = cmap.New[config2.MidMysqlConf]()
-		MysqlEngine.SqlContainer = cmap.New[*MysqlClient]()
-		conf := config2.GetConf()
-		confList = conf.Mysql
-		//本地文件中获取
-		for _, v := range confList {
-			if v.Name != "" {
-				MysqlEngine.MysqlConf.Set(v.Name, v)
+		MysqlEngine.MyLock.Lock()
+		defer MysqlEngine.MyLock.Unlock()
+		if MysqlEngine == nil {
+			MysqlEngine = new(SqlContainer)
+			var confList []config2.MidMysqlConf
+			MysqlEngine.MysqlConf = cmap.New[config2.MidMysqlConf]()
+			MysqlEngine.SqlContainer = cmap.New[*MysqlClient]()
+			conf := config2.GetConf()
+			confList = conf.Mysql
+			//本地文件中获取
+			for _, v := range confList {
+				if v.Name != "" {
+					MysqlEngine.MysqlConf.Set(v.Name, v)
+				}
 			}
-		}
-		//nacos获取
-		if conf.MysqlNacos.Name != "" {
-			var yaml []byte
-			mysqlList := new(config2.MysqlConf)
-			ns, e := nacos.GetEngine(ctx, conf.MysqlNacos.Name)
-			if e == nil {
-				yaml, e = ns.GetConfig(ctx, conf.MysqlNacos.Did, conf.MysqlNacos.Group, conf.MysqlNacos.Ns)
+			//nacos获取
+			if conf.MysqlNacos.Name != "" {
+				var yaml []byte
+				mysqlList := new(config2.MysqlConf)
+				ns, e := nacos.GetEngine(ctx, conf.MysqlNacos.Name)
 				if e == nil {
-					e = yaml2.DecodeByBytes(yaml, mysqlList)
+					yaml, e = ns.GetConfig(ctx, conf.MysqlNacos.Did, conf.MysqlNacos.Group, conf.MysqlNacos.Ns)
 					if e == nil {
-						for _, v := range mysqlList.List {
-							MysqlEngine.MysqlConf.Set(v.Name, v)
+						e = yaml2.DecodeByBytes(yaml, mysqlList)
+						if e == nil {
+							for _, v := range mysqlList.List {
+								MysqlEngine.MysqlConf.Set(v.Name, v)
+							}
+						} else {
+							logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
 						}
-					} else {
-						logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
 					}
 				}
 			}
+			_ = app.RegisterFunc("mysql", "mysql close", func() {
+				MysqlEngine.Reset()
+			})
 		}
-		_ = app.RegisterFunc("mysql", "mysql close", func() {
-			MysqlEngine.Reset()
-		})
 	}
-
 	e, ok := MysqlEngine.SqlContainer.Get(name)
 	if ok {
 		return e, nil

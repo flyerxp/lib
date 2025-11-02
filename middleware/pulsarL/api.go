@@ -14,6 +14,7 @@ import (
 	cmap "github.com/orcaman/concurrent-map/v2"
 	"go.uber.org/zap"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -21,6 +22,7 @@ import (
 type PulsarContainer struct {
 	PulsarContainer cmap.ConcurrentMap[string, *PulsarClient]
 	PulsarConf      cmap.ConcurrentMap[string, config2.MidPulsarConf]
+	MyLock          *sync.Mutex
 }
 
 func init() {
@@ -88,7 +90,14 @@ func initEngine(ctx context.Context) {
 }
 func GetEngine(ctx context.Context, name string) (*PulsarClient, error) {
 	if pulsarEngine == nil {
-		initEngine(ctx)
+		if pulsarEngine.MyLock == nil {
+			pulsarEngine.MyLock = new(sync.Mutex)
+		}
+		pulsarEngine.MyLock.Lock()
+		defer pulsarEngine.MyLock.Unlock()
+		if pulsarEngine == nil {
+			initEngine(ctx)
+		}
 	}
 	e, ok := pulsarEngine.PulsarContainer.Get(name)
 	if ok {

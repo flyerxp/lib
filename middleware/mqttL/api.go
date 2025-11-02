@@ -27,6 +27,7 @@ import (
 type MqttContainer struct {
 	MqttContainer cmap.ConcurrentMap[string, *MqttClient]
 	MqttConf      cmap.ConcurrentMap[string, config2.MidMqttConf]
+	MyLock        *sync.Mutex
 }
 
 var producerQue *mqttProducer
@@ -171,7 +172,14 @@ func initEngine(ctx context.Context) {
 }
 func GetEngine(ctx context.Context, name string, opsF ...func(ops *mqtt.ClientOptions)) (*MqttClient, error) {
 	if mqttEngine == nil {
-		initEngine(ctx)
+		if mqttEngine.MyLock == nil {
+			mqttEngine.MyLock = new(sync.Mutex)
+		}
+		mqttEngine.MyLock.Lock()
+		defer mqttEngine.MyLock.Unlock()
+		if mqttEngine == nil {
+			initEngine(ctx)
+		}
 	}
 	e, ok := mqttEngine.MqttContainer.Get(name)
 	if ok {

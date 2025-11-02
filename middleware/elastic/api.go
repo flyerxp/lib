@@ -17,6 +17,7 @@ import (
 type EsContainer struct {
 	EsContainer cmap.ConcurrentMap[string, *ElasticClient]
 	EsConf      cmap.ConcurrentMap[string, config.MidEsConf]
+	MyLock      *sync.Mutex
 }
 type ElasticClient struct {
 	Poll   *sync.Pool
@@ -26,42 +27,50 @@ type ElasticClient struct {
 var EsEngine *EsContainer
 
 func GetEngine(ctx context.Context, name string) (*ElasticClient, error) {
+	if EsEngine.MyLock == nil {
+		EsEngine.MyLock = new(sync.Mutex)
+	}
 	if EsEngine == nil {
-		EsEngine = new(EsContainer)
-		var confList []config.MidEsConf
-		EsEngine.EsConf = cmap.New[config.MidEsConf]()
-		EsEngine.EsContainer = cmap.New[*ElasticClient]()
-		conf := config.GetConf()
-		confList = conf.Elastic
-		//本地文件中获取
-		for _, v := range confList {
-			if v.Name != "" {
-				EsEngine.EsConf.Set(v.Name, v)
+		EsEngine.MyLock.Lock()
+		defer EsEngine.MyLock.Unlock()
+		if EsEngine == nil {
+			EsEngine = new(EsContainer)
+			var confList []config.MidEsConf
+			EsEngine.EsConf = cmap.New[config.MidEsConf]()
+			EsEngine.EsContainer = cmap.New[*ElasticClient]()
+			conf := config.GetConf()
+			confList = conf.Elastic
+			//本地文件中获取
+			for _, v := range confList {
+				if v.Name != "" {
+					EsEngine.EsConf.Set(v.Name, v)
+				}
 			}
-		}
-		//nacos获取
-		if conf.ElasticNacos.Name != "" {
-			var yaml []byte
-			elasticList := new(config.ElasticConf)
-			ns, e := nacos.GetEngine(ctx, conf.ElasticNacos.Name)
-			if e == nil {
-				yaml, e = ns.GetConfig(ctx, conf.ElasticNacos.Did, conf.ElasticNacos.Group, conf.ElasticNacos.Ns)
-
+			//nacos获取
+			if conf.ElasticNacos.Name != "" {
+				var yaml []byte
+				elasticList := new(config.ElasticConf)
+				ns, e := nacos.GetEngine(ctx, conf.ElasticNacos.Name)
 				if e == nil {
-					e = yaml2.DecodeByBytes(yaml, elasticList)
+					yaml, e = ns.GetConfig(ctx, conf.ElasticNacos.Did, conf.ElasticNacos.Group, conf.ElasticNacos.Ns)
+
 					if e == nil {
-						for _, v := range elasticList.List {
-							EsEngine.EsConf.Set(v.Name, v)
+						e = yaml2.DecodeByBytes(yaml, elasticList)
+						if e == nil {
+							for _, v := range elasticList.List {
+								EsEngine.EsConf.Set(v.Name, v)
+							}
+						} else {
+							logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
 						}
-					} else {
-						logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
 					}
 				}
 			}
+			_ = app.RegisterFunc("elastic", "elastic close", func() {
+				EsEngine.Reset()
+			})
 		}
-		_ = app.RegisterFunc("elastic", "elastic close", func() {
-			EsEngine.Reset()
-		})
+
 	}
 	e, ok := EsEngine.EsContainer.Get(name)
 	if ok {

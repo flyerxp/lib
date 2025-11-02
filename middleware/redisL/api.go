@@ -11,12 +11,14 @@ import (
 	cmap "github.com/orcaman/concurrent-map/v2"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
+	"sync"
 	"time"
 )
 
 type redisClient struct {
 	RedisClient cmap.ConcurrentMap[string, *RedisC]
 	RedisConf   cmap.ConcurrentMap[string, config2.MidRedisConf]
+	MyLock      *sync.Mutex
 }
 
 var RedisEngine *redisClient
@@ -28,45 +30,53 @@ type RedisC struct {
 
 func GetEngine(ctx context.Context, name string) (*RedisC, error) {
 	if RedisEngine == nil {
-		RedisEngine = new(redisClient)
-		var confList []config2.MidRedisConf
-		RedisEngine.RedisConf = cmap.New[config2.MidRedisConf]()
-		RedisEngine.RedisClient = cmap.New[*RedisC]()
-		conf := config2.GetConf()
-		confList = conf.Redis
-		//本地文件中获取
-		//RedisEngine.Lock.Lock()
-		for _, v := range confList {
-			if v.Name != "" {
-				RedisEngine.RedisConf.Set(v.Name, v)
-			}
+		if RedisEngine.MyLock == nil {
+			RedisEngine.MyLock = new(sync.Mutex)
 		}
-		//nacos获取
-		if conf.RedisNacos.Name != "" {
-			var yaml []byte
-			redisList := new(config2.RedisConf)
-			ns, e := nacos.GetEngine(ctx, conf.RedisNacos.Name)
-			if e == nil {
-				yaml, e = ns.GetConfig(ctx, conf.RedisNacos.Did, conf.RedisNacos.Group, conf.RedisNacos.Ns)
+		RedisEngine.MyLock.Lock()
+		defer RedisEngine.MyLock.Unlock()
+
+		if RedisEngine == nil {
+			RedisEngine = new(redisClient)
+			var confList []config2.MidRedisConf
+			RedisEngine.RedisConf = cmap.New[config2.MidRedisConf]()
+			RedisEngine.RedisClient = cmap.New[*RedisC]()
+			conf := config2.GetConf()
+			confList = conf.Redis
+			//本地文件中获取
+			//RedisEngine.Lock.Lock()
+			for _, v := range confList {
+				if v.Name != "" {
+					RedisEngine.RedisConf.Set(v.Name, v)
+				}
+			}
+			//nacos获取
+			if conf.RedisNacos.Name != "" {
+				var yaml []byte
+				redisList := new(config2.RedisConf)
+				ns, e := nacos.GetEngine(ctx, conf.RedisNacos.Name)
 				if e == nil {
-					e = yaml2.DecodeByBytes(yaml, redisList)
+					yaml, e = ns.GetConfig(ctx, conf.RedisNacos.Did, conf.RedisNacos.Group, conf.RedisNacos.Ns)
 					if e == nil {
-						for _, v := range redisList.Redis {
-							RedisEngine.RedisConf.Set(v.Name, v)
+						e = yaml2.DecodeByBytes(yaml, redisList)
+						if e == nil {
+							for _, v := range redisList.Redis {
+								RedisEngine.RedisConf.Set(v.Name, v)
+							}
+						} else {
+							logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
 						}
 					} else {
-						logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
+						logger.AddError(ctx, zap.Error(e))
 					}
 				} else {
 					logger.AddError(ctx, zap.Error(e))
 				}
-			} else {
-				logger.AddError(ctx, zap.Error(e))
 			}
+			_ = app.RegisterFunc("redis", "redis close", func() {
+				RedisEngine.Reset()
+			})
 		}
-		_ = app.RegisterFunc("redis", "redis close", func() {
-			RedisEngine.Reset()
-		})
 	}
 	e, ok := RedisEngine.RedisClient.Get(name)
 	if ok {
