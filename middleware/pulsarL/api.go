@@ -23,6 +23,7 @@ type PulsarContainer struct {
 	PulsarContainer cmap.ConcurrentMap[string, *PulsarClient]
 	PulsarConf      cmap.ConcurrentMap[string, config2.MidPulsarConf]
 	MyLock          *sync.Mutex
+	IsEnd           bool //是否初始化完成
 }
 
 func init() {
@@ -48,56 +49,58 @@ func AsyncInitPulsar() {
 	})
 }
 func initEngine(ctx context.Context) {
-	pulsarEngine = new(PulsarContainer)
-	var confList []config2.MidPulsarConf
-	pulsarEngine.PulsarConf = cmap.New[config2.MidPulsarConf]()
-	pulsarEngine.PulsarContainer = cmap.New[*PulsarClient]()
-	conf := config2.GetConf()
-	confList = conf.Pulsar
-	//本地文件中获取
-	for _, v := range confList {
-		if v.Name != "" {
-			pulsarEngine.PulsarConf.Set(v.Name, v)
-		}
+	if pulsarEngine == nil {
+		pulsarEngine = new(PulsarContainer)
+		pulsarEngine.MyLock = new(sync.Mutex)
+		pulsarEngine.PulsarConf = cmap.New[config2.MidPulsarConf]()
+		pulsarEngine.PulsarContainer = cmap.New[*PulsarClient]()
+		pulsarEngine.IsEnd = false
 	}
-	if conf.PulsarNacos.Name != "" {
-		var yaml []byte
-		pulsarList := new(config2.PulsarConf)
-
-		ns, e := nacos.GetEngine(ctx, conf.PulsarNacos.Name)
-		if e == nil {
-			yaml, e = ns.GetConfig(ctx, conf.PulsarNacos.Did, conf.PulsarNacos.Group, conf.PulsarNacos.Ns)
+	pulsarEngine.MyLock.Lock()
+	defer func() {
+		pulsarEngine.MyLock.Unlock()
+	}()
+	if pulsarEngine.PulsarConf.IsEmpty() {
+		var confList []config2.MidPulsarConf
+		conf := config2.GetConf()
+		confList = conf.Pulsar
+		//本地文件中获取
+		for _, v := range confList {
+			if v.Name != "" {
+				pulsarEngine.PulsarConf.Set(v.Name, v)
+			}
+		}
+		if conf.PulsarNacos.Name != "" {
+			var yaml []byte
+			pulsarList := new(config2.PulsarConf)
+			ns, e := nacos.GetEngine(ctx, conf.PulsarNacos.Name)
 			if e == nil {
-				e = yaml2.DecodeByBytes(yaml, pulsarList)
+				yaml, e = ns.GetConfig(ctx, conf.PulsarNacos.Did, conf.PulsarNacos.Group, conf.PulsarNacos.Ns)
 				if e == nil {
-					for _, v := range pulsarList.List {
-						pulsarEngine.PulsarConf.Set(v.Name, v)
+					e = yaml2.DecodeByBytes(yaml, pulsarList)
+					if e == nil {
+						for _, v := range pulsarList.List {
+							pulsarEngine.PulsarConf.Set(v.Name, v)
+						}
+					} else {
+						logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
+						logger.WriteErr(ctx)
 					}
 				} else {
-					logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
+					logger.AddError(ctx, zap.Error(e))
 					logger.WriteErr(ctx)
 				}
+				pulsarEngine.IsEnd = true
 			} else {
 				logger.AddError(ctx, zap.Error(e))
 				logger.WriteErr(ctx)
 			}
-		} else {
-			logger.AddError(ctx, zap.Error(e))
-			logger.WriteErr(ctx)
 		}
 	}
-
 }
 func GetEngine(ctx context.Context, name string) (*PulsarClient, error) {
-	if pulsarEngine == nil {
-		if pulsarEngine.MyLock == nil {
-			pulsarEngine.MyLock = new(sync.Mutex)
-		}
-		pulsarEngine.MyLock.Lock()
-		defer pulsarEngine.MyLock.Unlock()
-		if pulsarEngine == nil {
-			initEngine(ctx)
-		}
+	if pulsarEngine == nil || !pulsarEngine.IsEnd {
+		initEngine(ctx)
 	}
 	e, ok := pulsarEngine.PulsarContainer.Get(name)
 	if ok {

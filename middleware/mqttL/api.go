@@ -28,6 +28,7 @@ type MqttContainer struct {
 	MqttContainer cmap.ConcurrentMap[string, *MqttClient]
 	MqttConf      cmap.ConcurrentMap[string, config2.MidMqttConf]
 	MyLock        *sync.Mutex
+	IsEnd         bool //是否初始化完成
 }
 
 var producerQue *mqttProducer
@@ -129,57 +130,61 @@ func AsyncInitMqtt() {
 	})
 }
 func initEngine(ctx context.Context) {
-	mqttEngine = new(MqttContainer)
-	var confList []config2.MidMqttConf
-	mqttEngine.MqttConf = cmap.New[config2.MidMqttConf]()
-	mqttEngine.MqttContainer = cmap.New[*MqttClient]()
-	conf := config2.GetConf()
-	confList = conf.Mqtt
-	//本地文件中获取
-	for _, v := range confList {
-		if v.Name != "" {
-			mqttEngine.MqttConf.Set(v.Name, v)
-		}
+	if mqttEngine == nil {
+		mqttEngine = new(MqttContainer)
+		mqttEngine.MyLock = new(sync.Mutex)
+		mqttEngine.MqttConf = cmap.New[config2.MidMqttConf]()
+		mqttEngine.MqttContainer = cmap.New[*MqttClient]()
+		mqttEngine.IsEnd = false
 	}
-	if conf.MqttNacos.Name != "" {
-		var yaml []byte
-		mqttList := new(config2.MqttConf)
-		ns, e := nacos.GetEngine(ctx, conf.MqttNacos.Name)
-		if e == nil {
-			yaml, e = ns.GetConfig(ctx, conf.MqttNacos.Did, conf.MqttNacos.Group, conf.MqttNacos.Ns)
+	mqttEngine.MyLock.Lock()
+	defer mqttEngine.MyLock.Unlock()
+	if mqttEngine.MqttConf.IsEmpty() {
+		var confList []config2.MidMqttConf
+		conf := config2.GetConf()
+		confList = conf.Mqtt
+		//本地文件中获取
+		for _, v := range confList {
+			if v.Name != "" {
+				mqttEngine.MqttConf.Set(v.Name, v)
+			}
+		}
+		if conf.MqttNacos.Name != "" {
+			var yaml []byte
+			mqttList := new(config2.MqttConf)
+			ns, e := nacos.GetEngine(ctx, conf.MqttNacos.Name)
 			if e == nil {
-				e = yaml2.DecodeByBytes(yaml, mqttList)
+				yaml, e = ns.GetConfig(ctx, conf.MqttNacos.Did, conf.MqttNacos.Group, conf.MqttNacos.Ns)
 				if e == nil {
-					for _, v := range mqttList.List {
-						if v.Scheme == "" {
-							v.Scheme = "tcp"
+					e = yaml2.DecodeByBytes(yaml, mqttList)
+					if e == nil {
+						for _, v := range mqttList.List {
+							if v.Scheme == "" {
+								v.Scheme = "tcp"
+							}
+							mqttEngine.MqttConf.Set(v.Name, v)
 						}
-						mqttEngine.MqttConf.Set(v.Name, v)
+						mqttEngine.IsEnd = true
+					} else {
+						logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
+						logger.WriteErr(ctx)
 					}
 				} else {
-					logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
+					logger.AddError(ctx, zap.Error(e))
 					logger.WriteErr(ctx)
 				}
 			} else {
 				logger.AddError(ctx, zap.Error(e))
 				logger.WriteErr(ctx)
 			}
-		} else {
-			logger.AddError(ctx, zap.Error(e))
-			logger.WriteErr(ctx)
 		}
 	}
 }
 func GetEngine(ctx context.Context, name string, opsF ...func(ops *mqtt.ClientOptions)) (*MqttClient, error) {
-	if mqttEngine == nil {
-		if mqttEngine.MyLock == nil {
-			mqttEngine.MyLock = new(sync.Mutex)
-		}
-		mqttEngine.MyLock.Lock()
-		defer mqttEngine.MyLock.Unlock()
-		if mqttEngine == nil {
-			initEngine(ctx)
-		}
+	if mqttEngine == nil || !mqttEngine.IsEnd {
+
+		initEngine(ctx)
+
 	}
 	e, ok := mqttEngine.MqttContainer.Get(name)
 	if ok {

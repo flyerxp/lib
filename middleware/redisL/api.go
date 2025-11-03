@@ -19,6 +19,7 @@ type redisClient struct {
 	RedisClient cmap.ConcurrentMap[string, *RedisC]
 	RedisConf   cmap.ConcurrentMap[string, config2.MidRedisConf]
 	MyLock      *sync.Mutex
+	IsEnd       bool //是否初始化完成
 }
 
 var RedisEngine *redisClient
@@ -29,18 +30,20 @@ type RedisC struct {
 }
 
 func GetEngine(ctx context.Context, name string) (*RedisC, error) {
-	if RedisEngine == nil {
-		if RedisEngine.MyLock == nil {
-			RedisEngine.MyLock = new(sync.Mutex)
-		}
-		RedisEngine.MyLock.Lock()
-		defer RedisEngine.MyLock.Unlock()
-
+	if RedisEngine == nil || !RedisEngine.IsEnd {
 		if RedisEngine == nil {
 			RedisEngine = new(redisClient)
-			var confList []config2.MidRedisConf
+			RedisEngine.MyLock = new(sync.Mutex)
 			RedisEngine.RedisConf = cmap.New[config2.MidRedisConf]()
 			RedisEngine.RedisClient = cmap.New[*RedisC]()
+			RedisEngine.IsEnd = false
+		}
+		RedisEngine.MyLock.Lock()
+		defer func() {
+			RedisEngine.MyLock.Unlock()
+		}()
+		if RedisEngine.RedisConf.IsEmpty() {
+			var confList []config2.MidRedisConf
 			conf := config2.GetConf()
 			confList = conf.Redis
 			//本地文件中获取
@@ -66,6 +69,7 @@ func GetEngine(ctx context.Context, name string) (*RedisC, error) {
 						} else {
 							logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
 						}
+						RedisEngine.IsEnd = true
 					} else {
 						logger.AddError(ctx, zap.Error(e))
 					}

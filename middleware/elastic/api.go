@@ -18,6 +18,7 @@ type EsContainer struct {
 	EsContainer cmap.ConcurrentMap[string, *ElasticClient]
 	EsConf      cmap.ConcurrentMap[string, config.MidEsConf]
 	MyLock      *sync.Mutex
+	IsEnd       bool //是否初始化完成
 }
 type ElasticClient struct {
 	Poll   *sync.Pool
@@ -27,17 +28,18 @@ type ElasticClient struct {
 var EsEngine *EsContainer
 
 func GetEngine(ctx context.Context, name string) (*ElasticClient, error) {
-	if EsEngine.MyLock == nil {
-		EsEngine.MyLock = new(sync.Mutex)
-	}
-	if EsEngine == nil {
-		EsEngine.MyLock.Lock()
-		defer EsEngine.MyLock.Unlock()
+	if EsEngine == nil || !EsEngine.IsEnd {
 		if EsEngine == nil {
 			EsEngine = new(EsContainer)
-			var confList []config.MidEsConf
 			EsEngine.EsConf = cmap.New[config.MidEsConf]()
 			EsEngine.EsContainer = cmap.New[*ElasticClient]()
+			EsEngine.MyLock = new(sync.Mutex)
+			EsEngine.IsEnd = false
+		}
+		EsEngine.MyLock.Lock()
+		defer EsEngine.MyLock.Unlock()
+		if EsEngine.EsConf.IsEmpty() {
+			var confList []config.MidEsConf
 			conf := config.GetConf()
 			confList = conf.Elastic
 			//本地文件中获取
@@ -63,6 +65,7 @@ func GetEngine(ctx context.Context, name string) (*ElasticClient, error) {
 						} else {
 							logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
 						}
+						EsEngine.IsEnd = true
 					}
 				}
 			}

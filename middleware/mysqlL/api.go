@@ -27,6 +27,7 @@ type SqlContainer struct {
 	SqlContainer cmap.ConcurrentMap[string, *MysqlClient]
 	MysqlConf    cmap.ConcurrentMap[string, config2.MidMysqlConf]
 	MyLock       *sync.Mutex
+	IsEnd        bool //是否初始化完成
 }
 
 // Mysql 客户端
@@ -55,17 +56,19 @@ func (m *MysqlLog) Print(ctx context.Context, v ...interface{}) {
 	logger.AddError(ctx, zapLog...)
 }
 func GetEngine(ctx context.Context, name string) (*MysqlClient, error) {
-	if MysqlEngine.MyLock == nil {
-		MysqlEngine.MyLock = new(sync.Mutex)
-	}
-	if MysqlEngine == nil {
-		MysqlEngine.MyLock.Lock()
-		defer MysqlEngine.MyLock.Unlock()
+	if MysqlEngine == nil || !MysqlEngine.IsEnd {
 		if MysqlEngine == nil {
 			MysqlEngine = new(SqlContainer)
-			var confList []config2.MidMysqlConf
+			MysqlEngine.MyLock = new(sync.Mutex)
 			MysqlEngine.MysqlConf = cmap.New[config2.MidMysqlConf]()
 			MysqlEngine.SqlContainer = cmap.New[*MysqlClient]()
+		}
+		MysqlEngine.MyLock.Lock()
+		defer func() {
+			MysqlEngine.MyLock.Unlock()
+		}()
+		if MysqlEngine.MysqlConf.IsEmpty() {
+			var confList []config2.MidMysqlConf
 			conf := config2.GetConf()
 			confList = conf.Mysql
 			//本地文件中获取
@@ -90,6 +93,7 @@ func GetEngine(ctx context.Context, name string) (*MysqlClient, error) {
 						} else {
 							logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
 						}
+						MysqlEngine.IsEnd = true
 					}
 				}
 			}

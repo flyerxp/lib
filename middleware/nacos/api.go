@@ -9,6 +9,7 @@ import (
 	"github.com/flyerxp/lib/v2/utils/stringL"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
+	"strings"
 	"sync"
 	"time"
 )
@@ -18,6 +19,8 @@ type Client struct {
 	HttpPool   *sync.Pool
 	Token      *AccessToken
 }
+
+var nacosRedisIsBad bool = false //redis是否连接正常
 type AccessToken struct {
 	AccessToken string        `json:"accessToken"`
 	TokenTtl    time.Duration `json:"tokenTtl"`
@@ -42,12 +45,12 @@ func newClient(o config2.MidNacos) *Client {
 		op := &redis.UniversalOptions{
 			Addrs:        o.Redis.Address,
 			MasterName:   o.Redis.Master,
-			PoolTimeout:  time.Millisecond * time.Duration(500),
-			ReadTimeout:  time.Millisecond * time.Duration(500),
-			WriteTimeout: time.Millisecond * time.Duration(500),
-			DialTimeout:  time.Millisecond * time.Duration(500),
-			MaxIdleConns: 30,
-			MaxRetries:   3,
+			PoolTimeout:  time.Millisecond * time.Duration(30),
+			ReadTimeout:  time.Millisecond * time.Duration(200),
+			WriteTimeout: time.Millisecond * time.Duration(200),
+			DialTimeout:  time.Millisecond * time.Duration(200),
+			MaxIdleConns: 3,
+			MaxRetries:   0,
 			//ConnMaxLifetime: 30 * time.Second,
 			ConnMaxIdleTime: 30 * time.Second,
 		}
@@ -79,9 +82,29 @@ func (n *Client) GetKey(url string) string {
 func (n *Client) getUrl(url string) string {
 	return n.BaseOption.Url + url
 }
-func (n *Client) getDataFromCache(ctx context.Context, cacheKey string) (*redis.StringCmd, error) {
-	rv := redisClient.Get(ctx, cacheKey)
-	return rv, nil
+func (n *Client) getDataFromCache(ctx context.Context, cacheKey string) (rv *redis.StringCmd, err error) {
+	if nacosRedisIsBad {
+		return nil, errors.New("nacos redis is bad")
+	}
+	rv = redisClient.Get(ctx, cacheKey)
+	if rv.Err() != nil {
+		err = rv.Err()
+		if !n.redisIsNilErr(err) {
+			if strings.Contains(err.Error(), "No connection") {
+				if !nacosRedisIsBad {
+					nacosRedisIsBad = true
+					go func() {
+						<-time.After(time.Second * 3)
+						nacosRedisIsBad = false
+					}()
+				}
+			}
+			logger.AddError(ctx, zap.Error(err))
+		}
+
+	}
+
+	return rv, err
 }
 func (n *Client) DelToken(ctx context.Context) {
 	key := n.GetKey("/v1/auth/login")
@@ -147,9 +170,12 @@ func (n *Client) DeleteCache(ctx context.Context, did string, gp string, ns stri
 	return key
 }
 func (n *Client) GetConfig(ctx context.Context, did string, gp string, ns string) ([]byte, error) {
+
 	start := time.Now()
 	key := n.GetKey("/nacos/v1/cs/configs" + "@@" + did + "@@" + gp + "@@" + ns)
+
 	rv, rErr := n.getDataFromCache(ctx, key)
+
 	if rErr == nil && !n.redisIsNilErr(rv.Err()) {
 		logger.AddNacosTime(ctx, int(time.Since(start).Microseconds()))
 		return rv.Bytes()
