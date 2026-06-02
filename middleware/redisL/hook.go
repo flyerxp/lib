@@ -18,7 +18,7 @@ func (HookLog) DialHook(next redis.DialHook) redis.DialHook {
 			if config.GetConf().Env != "product" {
 				panic("no find logid in context please use have context method")
 			} else {
-				logger.ErrWithoutCtx(zap.String("mysql", "no find logid in context, please use have context method"))
+				logger.ErrWithoutCtx(zap.String("redis", "no find logid in context, please use have context method"))
 				c, e := next(ctx, network, addr)
 				return c, e
 			}
