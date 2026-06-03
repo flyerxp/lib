@@ -25,6 +25,7 @@ type MidMysqlConf struct {
 	MaxLifetime  int    `yaml:"max_lifetime" json:"max_lifetime"`
 	MaxIdleTime  int    `yaml:"max_idle_time" json:"max_idle_time"`
 }
+
 type MidPulsarConf struct {
 	Name    string   `yaml:"name" json:"name"`
 	Address []string `yaml:"address" json:"address"`

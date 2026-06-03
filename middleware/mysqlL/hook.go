@@ -11,7 +11,6 @@ import (
 
 type Hooks struct {
 	*zap.Logger
-	SqlKey             *logger.Counter
 	IsPrintSQLDuration bool
 	DbName             string
 }
@@ -26,16 +25,17 @@ func (h *Hooks) Before(ctx context.Context, query string, args ...interface{}) (
 		}
 		return ctx, nil
 	}
-	h.SqlKey = logger.RegisterMysqlCounter(ctx, h.DbName)
-	h.SqlKey.Add()
-	key := h.SqlKey.GetString("query")
+	sqlKey := logger.RegisterMysqlCounter(ctx, h.DbName)
+	sqlKey.Add()
+	key := sqlKey.GetString("query")
 	return context.WithValue(ctx, key, time.Now()), nil
 }
 
 // After hook will get the timestamp registered on the Before hook and print the elapsed time
 func (h *Hooks) After(ctx context.Context, query string, args ...interface{}) (context.Context, error) {
-	key := h.SqlKey.GetString("query")
-	agKey := h.SqlKey.GetString("args")
+	sqlKey := logger.RegisterMysqlCounter(ctx, h.DbName)
+	key := sqlKey.GetString("query")
+	agKey := sqlKey.GetString("args")
 	begin, ok := ctx.Value(key).(time.Time)
 	var runTime int
 	if ok {
@@ -47,7 +47,7 @@ func (h *Hooks) After(ctx context.Context, query string, args ...interface{}) (c
 		}
 	}
 	if h.IsPrintSQLDuration {
-		logger.AddNotice(ctx, zap.String(key, query), zap.Any(agKey, args), zap.Float32(h.SqlKey.GetString("execTime"), float32(runTime)/1000))
+		logger.AddNotice(ctx, zap.String(key, query), zap.Any(agKey, args), zap.Float32(sqlKey.GetString("execTime"), float32(runTime)/1000))
 	}
 	return ctx, nil
 }
@@ -56,8 +56,9 @@ func (h *Hooks) OnError(ctx context.Context, err error, query string, args ...in
 		e, _ := GetEngine(ctx, h.DbName)
 		e.CloseDb()
 	}
-	key := h.SqlKey.GetString("query")
-	agKey := h.SqlKey.GetString("args")
+	sqlKey := logger.RegisterMysqlCounter(ctx, h.DbName)
+	key := sqlKey.GetString("query")
+	agKey := sqlKey.GetString("args")
 	var runTime int
 	if begin, ok := ctx.Value(key).(time.Time); ok {
 		runTime = int(time.Since(begin).Microseconds())
@@ -65,7 +66,7 @@ func (h *Hooks) OnError(ctx context.Context, err error, query string, args ...in
 	}
 	logger.AddError(ctx, zap.String(key, query), zap.Any(agKey, args), zap.Error(err))
 	if h.IsPrintSQLDuration {
-		logger.AddNotice(ctx, zap.String(key, query), zap.Any(agKey, args), zap.Int(h.SqlKey.GetString("execTime"), runTime))
+		logger.AddNotice(ctx, zap.String(key, query), zap.Any(agKey, args), zap.Int(sqlKey.GetString("execTime"), runTime))
 	}
 	return err
 }

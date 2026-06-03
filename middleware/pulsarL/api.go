@@ -90,12 +90,12 @@ func initEngine(ctx context.Context) {
 					logger.AddError(ctx, zap.Error(e))
 					logger.WriteErr(ctx)
 				}
-				pulsarEngine.IsEnd = true
 			} else {
 				logger.AddError(ctx, zap.Error(e))
 				logger.WriteErr(ctx)
 			}
 		}
+		pulsarEngine.IsEnd = true
 	}
 }
 func GetEngine(ctx context.Context, name string) (*PulsarClient, error) {

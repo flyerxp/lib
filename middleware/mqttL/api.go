@@ -164,7 +164,6 @@ func initEngine(ctx context.Context) {
 							}
 							mqttEngine.MqttConf.Set(v.Name, v)
 						}
-						mqttEngine.IsEnd = true
 					} else {
 						logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
 						logger.WriteErr(ctx)
@@ -178,6 +177,7 @@ func initEngine(ctx context.Context) {
 				logger.WriteErr(ctx)
 			}
 		}
+		mqttEngine.IsEnd = true
 	}
 }
 func GetEngine(ctx context.Context, name string, opsF ...func(ops *mqtt.ClientOptions)) (*MqttClient, error) {

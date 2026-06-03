@@ -229,7 +229,7 @@ func initConf() {
 		log.Print("use default config")
 		err = yaml.DecodeByBytes(defaultConfig, conf)
 		if err != nil {
-			log.Printf("default config error", err)
+			log.Printf("default config error %v", err)
 		}
 	}
 

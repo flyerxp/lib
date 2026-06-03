@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -20,7 +21,7 @@ type Client struct {
 	Token      *AccessToken
 }
 
-var nacosRedisIsBad bool = false //redis是否连接正常
+var nacosRedisIsBad atomic.Int32 //redis是否连接正常
 type AccessToken struct {
 	AccessToken string        `json:"accessToken"`
 	TokenTtl    time.Duration `json:"tokenTtl"`
@@ -83,7 +84,7 @@ func (n *Client) getUrl(url string) string {
 	return n.BaseOption.Url + url
 }
 func (n *Client) getDataFromCache(ctx context.Context, cacheKey string) (rv *redis.StringCmd, err error) {
-	if nacosRedisIsBad {
+	if nacosRedisIsBad.Load() == 1 {
 		return nil, errors.New("nacos redis is bad")
 	}
 	rv = redisClient.Get(ctx, cacheKey)
@@ -91,11 +92,11 @@ func (n *Client) getDataFromCache(ctx context.Context, cacheKey string) (rv *red
 		err = rv.Err()
 		if !n.redisIsNilErr(err) {
 			if strings.Contains(err.Error(), "No connection") {
-				if !nacosRedisIsBad {
-					nacosRedisIsBad = true
+				if nacosRedisIsBad.Load() == 0 {
+					nacosRedisIsBad.Store(1)
 					go func() {
 						<-time.After(time.Second * 3)
-						nacosRedisIsBad = false
+						nacosRedisIsBad.Store(0)
 					}()
 				}
 			}

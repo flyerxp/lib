@@ -2,26 +2,21 @@ package redisL
 
 import (
 	"context"
-	"github.com/flyerxp/lib/v2/config"
+	"fmt"
 	"github.com/flyerxp/lib/v2/logger"
 	"github.com/redis/go-redis/v9"
-	"go.uber.org/zap"
 	"net"
 	"time"
 )
 
-type HookLog struct{}
+type HookLog struct {
+	baseCtx context.Context
+}
 
-func (HookLog) DialHook(next redis.DialHook) redis.DialHook {
+func (h HookLog) DialHook(next redis.DialHook) redis.DialHook {
 	return func(ctx context.Context, network, addr string) (net.Conn, error) {
-		if ctx.Value(logger.GetLogIdKey()) == nil {
-			if config.GetConf().Env != "product" {
-				panic("no find logid in context please use have context method")
-			} else {
-				logger.ErrWithoutCtx(zap.String("mysql", "no find logid in context, please use have context method"))
-				c, e := next(ctx, network, addr)
-				return c, e
-			}
+		if ctx.Value(logger.GetLogIdKey()) == nil && h.baseCtx != nil {
+			ctx = logger.GetContext(h.baseCtx, fmt.Sprintf("redis_dial_%s_%d", addr, time.Now().UnixNano()))
 		}
 		t := time.Now()
 		l := logger.StartTime(addr)

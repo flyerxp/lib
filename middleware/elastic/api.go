@@ -65,9 +65,9 @@ func GetEngine(ctx context.Context, name string) (*ElasticClient, error) {
 						} else {
 							logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
 						}
-						EsEngine.IsEnd = true
 					}
 				}
+				EsEngine.IsEnd = true
 			}
 			_ = app.RegisterFunc("elastic", "elastic close", func() {
 				EsEngine.Reset()

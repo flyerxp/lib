@@ -58,8 +58,8 @@ func TestGo(T *testing.T) {
 	db := mysql.GetDb()
 	wg := sync.WaitGroup{}
 	for i := 0; i <= 100; i++ {
+		wg.Add(1)
 		go func() {
-			wg.Add(1)
 			tmpData := DataM{}
 			r := strconv.Itoa(rand.Intn(10000))
 			sql := "select " + r + " as id from news_info limit 1"

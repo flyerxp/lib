@@ -38,6 +38,7 @@ func (r *Rows) GetRowMapKString(rows *sql.Rows) (map[string]int, error) {
 				panic(e)
 			}
 		}
+		m[id] = c
 	}
 	return m, nil
 }
