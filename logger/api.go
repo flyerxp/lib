@@ -169,7 +169,7 @@ func WriteLine(ctx context.Context) {
 	if !noticeLog.isInitEd {
 		getNoticeLog()
 	}
-	logId := ctx.Value(GetLogIdKey()).(string)
+	logId := GetLogId(ctx)
 	if logId == "" {
 		return
 	}

@@ -106,13 +106,3 @@ type MidEsConf struct {
 type ElasticConf struct {
 	List []MidEsConf `yaml:"elastic" json:"elastic"`
 }
-
-func (m *MidEsConf) getMaxResult(index string) int {
-	if len(m.MaxWindowResult) == 0 {
-		return 0
-	}
-	if v, ok := m.MaxWindowResult[index]; ok {
-		return v
-	}
-	return 0
-}

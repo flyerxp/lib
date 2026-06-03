@@ -40,15 +40,13 @@ func AccessLog() {
 	//cfg.EncoderConfig.EncodeDuration = zapcore.StringDurationEncoder
 	//cfg.EncoderConfig.EncodeCaller = zapcore.FullCallerEncoder
 	AccessLogV = zap.Must(cfg.Build())
-	RegistermakeFileEvent(Event{"error", func() {
+	RegistermakeFileEvent(Event{"access", func() {
 		AccessLog()
 	}})
 }
-func WriteAccess(ctx context.Context, format string, v ...interface{}) {
+func WriteAccess(ctx context.Context, format string) {
 	if AccessLogV == nil {
 		AccessLog()
 	}
-	_ = ctx
-	_ = v
 	AccessLogV.Info(format)
 }

@@ -4,7 +4,6 @@ import (
 	"github.com/flyerxp/lib/v2/utils/env"
 	"github.com/flyerxp/lib/v2/utils/json"
 	yaml "github.com/flyerxp/lib/v2/utils/yaml"
-	_ "go.uber.org/zap/zapcore"
 	"log"
 	"path/filepath"
 	"sync"
@@ -49,9 +48,6 @@ type Config struct {
 	ElasticNacos   NacosConf       `yaml:"elasticNacos" json:"elasticNacos"`
 }
 
-func GetLogIdKey() string {
-	return "loggerId"
-}
 func (c *Config) String() string {
 	b, e := json.Encode(c)
 	if e != nil {
@@ -67,18 +63,6 @@ func GetConf() *Config {
 	once.Do(initConf)
 	return conf
 }
-
-// func (a *Config) getLoggerConf() zap.Config {
-// return a.App.Logger
-// }
-/*func (a *Config) getRedisConf(name string) {
-	if c.Redis == nil {
-		err := yaml.DecodeByFile(filepath.Join(prefix, filepath.Join(env.GetEnv(), "redis.yml")), config)
-		if err != nil {
-			//logger.Logger.
-		}
-	}
-}*/
 
 var defaultConfig = []byte(`
 env: test

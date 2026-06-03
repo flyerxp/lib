@@ -301,48 +301,17 @@ func addMiddleConnTime(m *MiddleExec, t int) {
 	m.ConnectCount += 1
 	m.ConnectTime += float32(t)
 }
-func AddMongoConnTime(ctx context.Context, t int) {
-	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-		addMiddleConnTime(&n.NoticeMetrics.Middle.Mongo, t)
-	}
-}
+
 func AddRedisConnTime(ctx context.Context, t int) {
 	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
 		addMiddleConnTime(&n.NoticeMetrics.Middle.Redis, t)
 	}
 }
-
-/*
-	func AddPulsarConnTime(ctx context.Context, t int) {
-		if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-			addMiddleConnTime(&n.NoticeMetrics.Middle.Pulsar, t)
-		}
+func AddMongoConnTime(ctx context.Context, t int) {
+	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
+		addMiddleConnTime(&n.NoticeMetrics.Middle.Mongo, t)
 	}
-
-	func AddKafkaConnTime(ctx context.Context, t int) {
-		if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-			addMiddleConnTime(&n.NoticeMetrics.Middle.Kafka, t)
-		}
-	}
-
-	func AddEsConnTime(ctx context.Context, t int) {
-		if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-			addMiddleConnTime(&n.NoticeMetrics.Middle.Elastic, t)
-		}
-	}
-
-	func AddRpcConnTime(ctx context.Context, t int) {
-		if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-			addMiddleConnTime(&n.NoticeMetrics.Middle.Rpc, t)
-		}
-	}
-
-	func AddRocketConnTime(ctx context.Context, t int) {
-		if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-			addMiddleConnTime(&n.NoticeMetrics.Middle.RocketMq, t)
-		}
-	}
-*/
+}
 func AddMqttConnTime(ctx context.Context, t int) {
 	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
 		addMiddleConnTime(&n.NoticeMetrics.Middle.Mqtt, t)
