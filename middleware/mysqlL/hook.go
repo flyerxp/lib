@@ -2,6 +2,7 @@ package mysqlL
 
 import (
 	"context"
+	"fmt"
 	"github.com/flyerxp/lib/v2/config"
 	"github.com/flyerxp/lib/v2/logger"
 	"go.uber.org/zap"
@@ -13,17 +14,22 @@ type Hooks struct {
 	*zap.Logger
 	IsPrintSQLDuration bool
 	DbName             string
+	baseCtx            context.Context
 }
 
 // Before hook will print the query with it's args and return the context with the timestamp
 func (h *Hooks) Before(ctx context.Context, query string, args ...interface{}) (context.Context, error) {
 	if ctx.Value(logger.GetLogIdKey()) == nil {
-		if config.GetConf().Env != "product" {
-			panic("no find logid in context please use have context method")
+		if h.baseCtx != nil {
+			ctx = logger.GetContext(h.baseCtx, fmt.Sprintf("mysql_%s_%d", h.DbName, time.Now().UnixNano()))
 		} else {
-			logger.ErrWithoutCtx(zap.String("mysql", "no find logid in context, please use have context method"))
+			if config.GetConf().Env != "product" {
+				panic("no find logid in context please use have context method")
+			} else {
+				logger.ErrWithoutCtx(zap.String("mysql", "no find logid in context, please use have context method"))
+			}
+			return ctx, nil
 		}
-		return ctx, nil
 	}
 	sqlKey := logger.RegisterMysqlCounter(ctx, h.DbName)
 	sqlKey.Add()

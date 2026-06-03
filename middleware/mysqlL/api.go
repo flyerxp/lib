@@ -108,11 +108,18 @@ func GetEngine(ctx context.Context, name string) (*MysqlClient, error) {
 	}
 	o, okC := MysqlEngine.MysqlConf.Get(name)
 	if okC {
+		var poolCtx context.Context
+		if ctx.Value(logger.GetLogIdKey()) != nil {
+			poolCtx = ctx
+		} else {
+			poolCtx = logger.GetContext(context.Background(), fmt.Sprintf("mysql_pool_%s", name))
+		}
 		hook := new(Hooks)
 		if o.SqlLog == "yes" {
 			hook.IsPrintSQLDuration = true
 		}
 		hook.DbName = o.Name
+		hook.baseCtx = poolCtx
 		//_ = mysql.SetLogger(&MysqlLog{})
 		sql.Register("mysqlWithHooks_"+o.Name, sqlhooks.Wrap(&mysql.MySQLDriver{}, hook))
 		objMysql := newClient(ctx, o)

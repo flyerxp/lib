@@ -36,6 +36,7 @@ type PulsarClient struct {
 }
 
 var pulsarEngine *PulsarContainer
+var pulsarLock sync.Mutex
 
 func AsyncInitPulsar() {
 	ctx := logger.GetContext(context.Background(), "asyncinitpulsar")
@@ -99,6 +100,8 @@ func initEngine(ctx context.Context) {
 	}
 }
 func GetEngine(ctx context.Context, name string) (*PulsarClient, error) {
+	pulsarLock.Lock()
+	defer pulsarLock.Unlock()
 	if pulsarEngine == nil || !pulsarEngine.IsEnd {
 		initEngine(ctx)
 	}

@@ -121,6 +121,7 @@ func (m *MqttClient) ProducerContent(ctx context.Context, o *OutMessage) error {
 }
 
 var mqttEngine *MqttContainer
+var mqttLock sync.Mutex
 
 func AsyncInitMqtt() {
 	ctx := logger.GetContext(context.Background(), "asyncinitmqtt")
@@ -181,6 +182,8 @@ func initEngine(ctx context.Context) {
 	}
 }
 func GetEngine(ctx context.Context, name string, opsF ...func(ops *mqtt.ClientOptions)) (*MqttClient, error) {
+	mqttLock.Lock()
+	defer mqttLock.Unlock()
 	if mqttEngine == nil || !mqttEngine.IsEnd {
 
 		initEngine(ctx)

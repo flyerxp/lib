@@ -31,8 +31,11 @@ type AccessToken struct {
 }
 
 var redisClient redis.UniversalClient
+var nacosLock sync.Mutex
 
 func GetEngine(ctx context.Context, name string) (*Client, error) {
+	nacosLock.Lock()
+	defer nacosLock.Unlock()
 	for _, v := range config2.GetConf().Nacos {
 		if v.Name == name {
 			return newClient(v), nil
