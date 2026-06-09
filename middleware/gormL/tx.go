@@ -7,15 +7,30 @@ import (
 
 type Tx struct {
 	db     *gorm.DB
-	closed bool
+	closed bool // 是否已经提交或者回滚
 }
 
-func NewTx(db *gorm.DB) Tx { return Tx{db: db} }
+// NewTx 创建事务包装器，自动开启事务
+func NewTx(db *gorm.DB) (*Tx, error) {
+	txDb := db.Begin()
+	if txDb.Error != nil {
+		return nil, txDb.Error
+	}
+	return &Tx{db: txDb}, nil
+}
+
+// DB 返回底层的 *gorm.DB 事务对象
+func (t *Tx) GetTxDB() *gorm.DB {
+	return t.db
+}
 
 // Commit 提交事务，重复调用会返回错误
 func (t *Tx) Commit() error {
 	if t.closed {
 		return errors.New("transaction already committed or rolled back")
+	}
+	if t.db == nil {
+		return errors.New("gormL: db is nil")
 	}
 
 	t.closed = true
@@ -27,6 +42,10 @@ func (t *Tx) Rollback() error {
 	if t.closed {
 		return errors.New("transaction already committed or rolled back")
 	}
+	if t.db == nil {
+		return errors.New("gormL: db is nil")
+	}
+
 	t.closed = true
 	return t.db.Rollback().Error
 }
@@ -36,7 +55,15 @@ func (t *Tx) Close() error {
 	if t.closed {
 		return nil
 	}
-	// 未提交的事务自动回滚
+	if t.db == nil {
+		return nil
+	}
+
 	t.closed = true
 	return t.db.Rollback().Error
+}
+
+// IsClosed 检查事务是否已结束
+func (t *Tx) IsClosed() bool {
+	return t.closed
 }
