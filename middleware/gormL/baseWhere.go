@@ -8,6 +8,10 @@ type BaseWhere struct {
 	Wheres []func(db *gorm.DB) *gorm.DB
 }
 
+func GetBaseWhere() *BaseWhere {
+	return &BaseWhere{}
+}
+
 // AddWhere 内部添加条件（通用）
 func (b *BaseWhere) AddWhere(fn func(db *gorm.DB) *gorm.DB) {
 	b.Wheres = append(b.Wheres, fn)
