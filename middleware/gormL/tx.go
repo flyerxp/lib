@@ -10,6 +10,8 @@ type Tx struct {
 	closed bool
 }
 
+func NewTx(db *gorm.DB) Tx { return Tx{db: db} }
+
 // Commit 提交事务，重复调用会返回错误
 func (t *Tx) Commit() error {
 	if t.closed {
