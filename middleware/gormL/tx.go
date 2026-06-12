@@ -19,7 +19,7 @@ func NewTx(db *gorm.DB) (*Tx, error) {
 	return &Tx{db: txDb}, nil
 }
 
-// DB 返回底层的 *gorm.DB 事务对象
+// GetTxDB DB 返回底层的 *gorm.DB 事务对象
 func (t *Tx) GetTxDB() *gorm.DB {
 	return t.db
 }
