@@ -29,14 +29,13 @@ func TestGo(t *testing.T) {
 	}))
 	defer p.Release()
 	for i := 1; i <= 10; i++ {
+		w.Add(1)
 		_ = p.Submit(func() {
-			w.Add(1)
 			myFunc(int32(1))
 			demoFunc()
 			w.Done()
 		})
 	}
-
 	w.Wait()
 	//time.Sleep(time.Millisecond * 5000)
 	//p.ReleaseTimeout(time.Second * 3)
