@@ -2,14 +2,13 @@ package elastic
 
 import (
 	"context"
+	"errors"
 	"github.com/flyerxp/lib/v2/app"
 	"github.com/flyerxp/lib/v2/config"
 	"github.com/flyerxp/lib/v2/logger"
 	"github.com/flyerxp/lib/v2/middleware/nacos"
 	yaml2 "github.com/flyerxp/lib/v2/utils/yaml"
-	"github.com/jmoiron/sqlx"
 	cmap "github.com/orcaman/concurrent-map/v2"
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"sync"
 )
@@ -103,9 +102,7 @@ func (m *ElasticClient) GetElastic() *QEngine {
 	}
 	return m.CurrEs
 }
-func (m *ElasticClient) PutDb(a *sqlx.DB) {
-	m.Poll.Put(a)
-}
+
 func (m *EsContainer) Reset() {
 	if EsEngine != nil {
 		for _, v := range EsEngine.EsContainer.Items() {
