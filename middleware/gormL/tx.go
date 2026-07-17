@@ -41,7 +41,7 @@ func (t *Tx) Commit() error {
 // Rollback 回滚事务，重复调用会返回错误
 func (t *Tx) Rollback() error {
 	if t.closed {
-		return nil
+		return errors.New("transaction already committed or rolled back")
 	}
 	if t.db == nil {
 		return errors.New("gormL: db is nil")
