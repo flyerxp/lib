@@ -121,6 +121,7 @@ func (m *MqttClient) ProducerContent(ctx context.Context, o *OutMessage) error {
 }
 
 var mqttEngine *MqttContainer
+var mqttLock sync.Mutex
 
 func AsyncInitMqtt() {
 	ctx := logger.GetContext(context.Background(), "asyncinitmqtt")
@@ -164,7 +165,6 @@ func initEngine(ctx context.Context) {
 							}
 							mqttEngine.MqttConf.Set(v.Name, v)
 						}
-						mqttEngine.IsEnd = true
 					} else {
 						logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
 						logger.WriteErr(ctx)
@@ -178,9 +178,12 @@ func initEngine(ctx context.Context) {
 				logger.WriteErr(ctx)
 			}
 		}
+		mqttEngine.IsEnd = true
 	}
 }
 func GetEngine(ctx context.Context, name string, opsF ...func(ops *mqtt.ClientOptions)) (*MqttClient, error) {
+	mqttLock.Lock()
+	defer mqttLock.Unlock()
 	if mqttEngine == nil || !mqttEngine.IsEnd {
 
 		initEngine(ctx)

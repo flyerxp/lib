@@ -49,6 +49,7 @@ type MiddleExec struct {
 type MiddleExecTime struct {
 	Redis    MiddleExec
 	Mysql    MiddleExec
+	Gorm     MiddleExec
 	Pulsar   MiddleExec
 	Kafka    MiddleExec
 	MemCache MiddleExec
@@ -132,7 +133,7 @@ func (a MiddleExec) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	enc.AddInt("count", a.Count)
 	enc.AddFloat32("avg", a.Avg/1000)
 	enc.AddFloat32("max", a.Max/1000)
-	if a.Name == "redis" || a.Name == "mysql" {
+	if a.Name == "redis" || a.Name == "mysql" || a.Name == "gorm" {
 		enc.AddFloat32("ConnTime", a.ConnectTime/1000)
 		enc.AddInt("ConnCount", a.ConnectCount)
 	}
@@ -173,6 +174,10 @@ func (r MiddleExecTime) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 		r.Mysql.Name = "mysql"
 		_ = enc.AddObject("mysql", r.Mysql)
 	}
+	if r.Gorm.Count > 0 || r.Gorm.ConnectCount > 0 {
+		r.Gorm.Name = "gorm"
+		_ = enc.AddObject("gorm", r.Gorm)
+	}
 	if r.RocketMq.Count > 0 {
 		r.RocketMq.Name = "rocket"
 		_ = enc.AddObject("rocket", r.RocketMq)
@@ -190,6 +195,7 @@ func (r MiddleExecTime) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 
 type CounterContainer struct {
 	Mysql cmap.ConcurrentMap[string, *Counter]
+	Gorm  cmap.ConcurrentMap[string, *Counter]
 }
 
 type Counter struct {
@@ -295,48 +301,17 @@ func addMiddleConnTime(m *MiddleExec, t int) {
 	m.ConnectCount += 1
 	m.ConnectTime += float32(t)
 }
-func AddMongoConnTime(ctx context.Context, t int) {
-	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-		addMiddleConnTime(&n.NoticeMetrics.Middle.Mongo, t)
-	}
-}
+
 func AddRedisConnTime(ctx context.Context, t int) {
 	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
 		addMiddleConnTime(&n.NoticeMetrics.Middle.Redis, t)
 	}
 }
-
-/*
-	func AddPulsarConnTime(ctx context.Context, t int) {
-		if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-			addMiddleConnTime(&n.NoticeMetrics.Middle.Pulsar, t)
-		}
+func AddMongoConnTime(ctx context.Context, t int) {
+	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
+		addMiddleConnTime(&n.NoticeMetrics.Middle.Mongo, t)
 	}
-
-	func AddKafkaConnTime(ctx context.Context, t int) {
-		if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-			addMiddleConnTime(&n.NoticeMetrics.Middle.Kafka, t)
-		}
-	}
-
-	func AddEsConnTime(ctx context.Context, t int) {
-		if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-			addMiddleConnTime(&n.NoticeMetrics.Middle.Elastic, t)
-		}
-	}
-
-	func AddRpcConnTime(ctx context.Context, t int) {
-		if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-			addMiddleConnTime(&n.NoticeMetrics.Middle.Rpc, t)
-		}
-	}
-
-	func AddRocketConnTime(ctx context.Context, t int) {
-		if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
-			addMiddleConnTime(&n.NoticeMetrics.Middle.RocketMq, t)
-		}
-	}
-*/
+}
 func AddMqttConnTime(ctx context.Context, t int) {
 	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
 		addMiddleConnTime(&n.NoticeMetrics.Middle.Mqtt, t)
@@ -345,6 +320,11 @@ func AddMqttConnTime(ctx context.Context, t int) {
 func AddMysqlConnTime(ctx context.Context, t int) {
 	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
 		addMiddleConnTime(&n.NoticeMetrics.Middle.Mysql, t)
+	}
+}
+func AddGormConnTime(ctx context.Context, t int) {
+	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
+		addMiddleConnTime(&n.NoticeMetrics.Middle.Gorm, t)
 	}
 }
 func AddMongoTime(ctx context.Context, t int) {
@@ -390,6 +370,11 @@ func AddRocketTime(ctx context.Context, t int) {
 func AddMysqlTime(ctx context.Context, t int) {
 	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
 		addMiddleExecTime(&n.NoticeMetrics.Middle.Mysql, t)
+	}
+}
+func AddGormSqlTime(ctx context.Context, t int) {
+	if n, ok := dataContainer.NoticeData.Get(GetLogId(ctx)); ok {
+		addMiddleExecTime(&n.NoticeMetrics.Middle.Gorm, t)
 	}
 }
 func AddNacosTime(ctx context.Context, t int) {

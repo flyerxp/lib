@@ -70,6 +70,7 @@ func RegisterNewLog(ctx context.Context) {
 	ndata.TotalExecTime = 0
 	counter := new(CounterContainer)
 	counter.Mysql = cmap.New[*Counter]()
+	counter.Gorm = cmap.New[*Counter]()
 	dataContainer.NoticeData.Set(id, &noticeData{
 		NoticeMetrics: ndata,
 		MysqlMetrics:  counter,
@@ -168,7 +169,7 @@ func WriteLine(ctx context.Context) {
 	if !noticeLog.isInitEd {
 		getNoticeLog()
 	}
-	logId := ctx.Value(GetLogIdKey()).(string)
+	logId := GetLogId(ctx)
 	if logId == "" {
 		return
 	}
@@ -293,6 +294,26 @@ func RegisterMysqlCounter(ctx context.Context, name string) *Counter {
 		co.Name = name
 		co.Type = "mysql"
 		nData.MysqlMetrics.Mysql.Set(name, co)
+		return co
+	}
+}
+func RegisterGormCounter(ctx context.Context, name string) *Counter {
+	logId := GetLogId(ctx)
+	if logId == "" {
+		return new(Counter)
+	}
+	nData, ok := dataContainer.NoticeData.Get(logId)
+	if !ok {
+		return new(Counter)
+	}
+	C, ok := nData.MysqlMetrics.Gorm.Get(name)
+	if ok {
+		return C
+	} else {
+		co := new(Counter)
+		co.Name = name
+		co.Type = "gorm"
+		nData.MysqlMetrics.Gorm.Set(name, co)
 		return co
 	}
 }

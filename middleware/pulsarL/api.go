@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/apache/pulsar-client-go/pulsar"
-	"github.com/apache/pulsar-client-go/pulsar/log"
 	"github.com/flyerxp/lib/v2/app"
 	config2 "github.com/flyerxp/lib/v2/config"
 	"github.com/flyerxp/lib/v2/logger"
@@ -36,6 +35,7 @@ type PulsarClient struct {
 }
 
 var pulsarEngine *PulsarContainer
+var pulsarLock sync.Mutex
 
 func AsyncInitPulsar() {
 	ctx := logger.GetContext(context.Background(), "asyncinitpulsar")
@@ -90,15 +90,17 @@ func initEngine(ctx context.Context) {
 					logger.AddError(ctx, zap.Error(e))
 					logger.WriteErr(ctx)
 				}
-				pulsarEngine.IsEnd = true
 			} else {
 				logger.AddError(ctx, zap.Error(e))
 				logger.WriteErr(ctx)
 			}
 		}
+		pulsarEngine.IsEnd = true
 	}
 }
 func GetEngine(ctx context.Context, name string) (*PulsarClient, error) {
+	pulsarLock.Lock()
+	defer pulsarLock.Unlock()
 	if pulsarEngine == nil || !pulsarEngine.IsEnd {
 		initEngine(ctx)
 	}
@@ -122,7 +124,7 @@ func GetEngine(ctx context.Context, name string) (*PulsarClient, error) {
 func newClient(ctx context.Context, o config2.MidPulsarConf) *PulsarClient {
 	op := pulsar.ClientOptions{
 		URL:               "pulsar://" + strings.Join(o.Address, ","),
-		Logger:            log.NewLoggerWithLogrus(getLog()),
+		Logger:            GetLogger(),
 		ConnectionTimeout: time.Second * 1,
 		OperationTimeout:  time.Second * 1,
 	}

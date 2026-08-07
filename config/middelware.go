@@ -25,6 +25,7 @@ type MidMysqlConf struct {
 	MaxLifetime  int    `yaml:"max_lifetime" json:"max_lifetime"`
 	MaxIdleTime  int    `yaml:"max_idle_time" json:"max_idle_time"`
 }
+
 type MidPulsarConf struct {
 	Name    string   `yaml:"name" json:"name"`
 	Address []string `yaml:"address" json:"address"`
@@ -104,14 +105,4 @@ type MidEsConf struct {
 
 type ElasticConf struct {
 	List []MidEsConf `yaml:"elastic" json:"elastic"`
-}
-
-func (m *MidEsConf) getMaxResult(index string) int {
-	if len(m.MaxWindowResult) == 0 {
-		return 0
-	}
-	if v, ok := m.MaxWindowResult[index]; ok {
-		return v
-	}
-	return 0
 }

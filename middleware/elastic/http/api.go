@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/flyerxp/lib/v2/config"
+	"github.com/flyerxp/lib/v2/errorsL"
 	"github.com/flyerxp/lib/v2/logger"
 	"github.com/flyerxp/lib/v2/middleware/elastic/result"
 	json2 "github.com/flyerxp/lib/v2/utils/json"
-	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
 	"go.uber.org/zap"
 	"math/rand"
@@ -237,7 +237,7 @@ func (c *HttpClient) SendRequest(ctx context.Context, method string, url string,
 	if c.active == "" {
 		defaultReturn.Aggregations = make([]interface{}, 0)
 		tmpJson, _ := json2.Encode(defaultReturn)
-		return tmpJson, errors.New("cluster no find" + c.clusterName)
+		return tmpJson, errorsL.New("cluster no find" + c.clusterName)
 	}
 	req := fasthttp.AcquireRequest()
 	req.SetRequestURI("http://" + c.active + url)
@@ -285,10 +285,10 @@ func (c *HttpClient) SendRequest(ctx context.Context, method string, url string,
 				Cluster:       c.gateway.Name,
 				Timeout:       timeoutDesc,
 			}
-			err = errors.New(fmt.Sprintf("ERR invalid HTTP response code: %d body %s", statusCode, string(respBody)))
+			err = errorsL.New(fmt.Sprintf("ERR invalid HTTP response code: %d body %s", statusCode, string(respBody)))
 			logger.AddWarn(ctx, zap.Any("elastic", lm))
 			if c.FailFun != nil {
-				c.FailFun(c.getError(statusCode, &lm, errors.Wrap(err, "elastic")))
+				c.FailFun(c.getError(statusCode, &lm, errorsL.Wrap(err, "elastic")))
 			}
 			defaultReturn.Aggregations = make([]interface{}, 0)
 			tmpJson, _ := json2.Encode(defaultReturn)
@@ -320,11 +320,11 @@ func (c *HttpClient) SendRequest(ctx context.Context, method string, url string,
 			Timeout:       timeoutDesc,
 		}
 		if c.FailFun != nil {
-			c.FailFun(c.getError(statusCode, &lm, errors.Wrap(err, "elastic")))
+			c.FailFun(c.getError(statusCode, &lm, errorsL.Wrap(err, "elastic")))
 		}
 		defaultReturn.Aggregations = make([]interface{}, 0)
 		tmpJson, _ := json2.Encode(defaultReturn)
-		return tmpJson, errors.New(errMsg)
+		return tmpJson, errorsL.New(errMsg)
 	}
 }
 func (c *HttpClient) getError(code int, lm *LastMessage, err error) *EKError {

@@ -38,7 +38,7 @@ func getWarnLog() {
 		cfg.EncoderConfig.EncodeCaller = zapcore.FullCallerEncoder
 		warnLogV.ZapLog = zap.Must(cfg.Build())
 		warnLogV.isInitEd = true
-		RegistermakeFileEvent(Event{"error", func() {
+		RegistermakeFileEvent(Event{"warn", func() {
 			warnLogV = new(warnLog)
 			getWarnLog()
 		}})

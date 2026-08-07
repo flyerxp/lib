@@ -100,6 +100,7 @@ func (c *Consumer) Consumer(F func(context.Context, *pulsar.ConsumerMessage, *Pu
 		if err != nil {
 			logger.AddError(ctx, zap.Error(err))
 			logger.WriteErr(ctx)
+			continue
 		}
 		c.ConsumerContainer[cluster], err = c.ConnContainer[cluster].CurrPulsar.Subscribe(pulsar.ConsumerOptions{
 			Topics:                 gTopics,
@@ -119,7 +120,9 @@ func (c *Consumer) Consumer(F func(context.Context, *pulsar.ConsumerMessage, *Pu
 	}
 	defer func() {
 		for i := range c.ConsumerContainer {
-			c.ConsumerContainer[i].Close()
+			if c.ConsumerContainer[i] != nil {
+				c.ConsumerContainer[i].Close()
+			}
 		}
 		app.Shutdown(ctx)
 	}()

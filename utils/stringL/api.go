@@ -3,7 +3,6 @@ package stringL
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"github.com/russross/blackfriday"
 	"regexp"
 	"strconv"
 	"strings"
@@ -18,12 +17,7 @@ func GetMd5(str string) string {
 	//fmt.Println(v)
 	return v
 }
-func MarkdownToHtml(b []byte) string {
-	htmlFlags := 0
-	htmlFlags |= 4096
-	renderer := blackfriday.HtmlRenderer(htmlFlags, "", "")
-	return string(blackfriday.Markdown(b, renderer, 0))
-}
+
 func TrimHtml(src string) string {
 	//将HTML标签全转换成小写
 	re, _ := regexp.Compile("<[\\S\\s]+?>")

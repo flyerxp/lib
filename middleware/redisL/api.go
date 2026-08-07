@@ -3,6 +3,7 @@ package redisL
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/flyerxp/lib/v2/app"
 	config2 "github.com/flyerxp/lib/v2/config"
 	"github.com/flyerxp/lib/v2/logger"
@@ -69,13 +70,13 @@ func GetEngine(ctx context.Context, name string) (*RedisC, error) {
 						} else {
 							logger.AddError(ctx, zap.Error(errors.New("yaml conver error")))
 						}
-						RedisEngine.IsEnd = true
 					} else {
 						logger.AddError(ctx, zap.Error(e))
 					}
 				} else {
 					logger.AddError(ctx, zap.Error(e))
 				}
+				RedisEngine.IsEnd = true
 			}
 			_ = app.RegisterFunc("redis", "redis close", func() {
 				RedisEngine.Reset()
@@ -120,13 +121,12 @@ func GetEngine(ctx context.Context, name string) (*RedisC, error) {
 		}
 		objRedis := redis.NewUniversalClient(op)
 
-		objRedis.AddHook(HookLog{})
-		objRedisC := new(RedisC)
+		poolCtx := logger.GetContext(context.Background(), fmt.Sprintf("redis_pool_%s", name))
+		objRedis.AddHook(HookLog{baseCtx: poolCtx})
+		objRedisC := &RedisC{C: objRedis, Conf: o}
 		go func() {
-			objRedisC.C.Ping(ctx)
+			objRedis.Ping(ctx)
 		}()
-		objRedisC.C = objRedis
-		objRedisC.Conf = o
 		RedisEngine.RedisClient.Set(name, objRedisC)
 		return objRedisC, nil
 	}

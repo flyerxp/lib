@@ -73,10 +73,14 @@ func (c *Consumer) Consumer(F func(context.Context, mqtt.Message, *MqttMessage) 
 	ctx := logger.GetContext(context.Background(), "initMqttConsumer")
 	defer func() {
 		for cluster, gTopics := range c.Topics {
-			c.ConnContainer[cluster].GetMqtt().Unsubscribe(gTopics...)
+			if client, ok := c.ConnContainer[cluster]; ok && client != nil && client.GetMqtt() != nil {
+				client.GetMqtt().Unsubscribe(gTopics...)
+			}
 		}
 		for i := range c.ConsumerContainer {
-			c.ConnContainer[i].GetMqtt().Disconnect(2500)
+			if client, ok := c.ConnContainer[i]; ok && client != nil && client.GetMqtt() != nil {
+				client.GetMqtt().Disconnect(2500)
+			}
 		}
 		app.Shutdown(ctx)
 	}()
@@ -86,13 +90,14 @@ func (c *Consumer) Consumer(F func(context.Context, mqtt.Message, *MqttMessage) 
 			ops.SetCleanSession(false)
 			ops.SetWriteTimeout(time.Second * 10)
 		})
-		if !c.ConnContainer[cluster].GetMqtt().IsConnected() {
-			conn := c.ConnContainer[cluster].GetMqtt().Connect()
-			conn.Wait()
-		}
 		if err != nil {
 			logger.AddError(ctx, zap.Error(err))
 			logger.WriteErr(ctx)
+			continue
+		}
+		if !c.ConnContainer[cluster].GetMqtt().IsConnected() {
+			conn := c.ConnContainer[cluster].GetMqtt().Connect()
+			conn.Wait()
 		}
 		tm := make(map[string]byte)
 		for i := range gTopics {
