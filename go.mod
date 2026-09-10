@@ -27,7 +27,6 @@ require (
 	github.com/RoaringBitmap/roaring/v2 v2.27.0 // indirect
 	github.com/andeya/ameda v1.5.3 // indirect
 	github.com/andeya/goutil v1.1.2 // indirect
-	github.com/andybalholm/brotli v1.2.3 // indirect
 	github.com/ardielle/ardielle-go v1.5.2 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bits-and-blooms/bitset v1.25.0 // indirect
